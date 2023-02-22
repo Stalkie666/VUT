@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include "bitset.h"
 
-//zjijstit jestli se jedna o 32bit nebo o 64bit verzi
-
 //projit jednotliva cisla v poli po bitech, pouzit bitovy posuv
     //filter bude unsigned long stejne jako pole.array[] 
     // asi nejak takhle: ,filter=1; porovnam; filter << 1 - bit posuv; a znova
