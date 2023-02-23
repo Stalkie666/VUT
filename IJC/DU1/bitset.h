@@ -16,13 +16,15 @@ typedef unsigned long bitset_index_t;
     //spise ty casti pres else if nebo tak nejak
 
 //na z8sobn9ku
-#define bitset_create(jmeno_pole,velikost) bitset_t jmeno_pole
+#define bitset_create(jmeno_pole,velikost)  unsigned long staticArr[velikost/sizeof(unsigned long) + 1 +1];\
+                                            bitset_t jmeno_pole = staticArr;
 //na halde
-#define bitset_alloc(jmeno_pole,velikost)
+#define bitset_alloc(jmeno_pole,velikost)   int allocSize = velikost / sizeof(unsigned long) + 1 + 1;\
+                                            bitset_t jmeno_pole = (unsigned long *)malloc(allocSize * sizeof(unsigned long));
 
-#define bitset_free(jmeno_pole) free(jmeno_pole.array)
+#define bitset_free(jmeno_pole) free(jmeno_pole)
 
-#define bitset_size(jmeno_pole) jmeno_pole.bit_velikost
+#define bitset_size(jmeno_pole) jmeno_pole[0]
 
 #define bitset_setbit(jmeno_pole,index,vyraz)
 
