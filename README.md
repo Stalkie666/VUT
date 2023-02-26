@@ -1,2 +1,4 @@
 # VUT
-Studies on VUT codes
+Studies and projects on VUT codes
+
+
