@@ -16,8 +16,8 @@ typedef unsigned long bitset_index_t;
     //spise ty casti pres else if nebo tak nejak
 
 //na z8sobn9ku
-#define bitset_create(jmeno_pole,velikost)  unsigned long staticArr[velikost/sizeof(unsigned long) + 1 +1];\
-                                            bitset_t jmeno_pole = staticArr;
+#define bitset_create(jmeno_pole,velikost)  unsigned long jmeno_pole[velikost/sizeof(unsigned long) + 1 +1] = {0};
+
 //na halde
 #define bitset_alloc(jmeno_pole,velikost)   int allocSize = velikost / sizeof(unsigned long) + 1 + 1;\
                                             bitset_t jmeno_pole = (unsigned long *)malloc(allocSize * sizeof(unsigned long));
