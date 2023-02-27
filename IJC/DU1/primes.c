@@ -6,5 +6,10 @@
 #include <stdio.h>
 
 int main(){
+    #ifdef USE_INLINE
+    #else
+    #endif
+
+
     return 0;
 }

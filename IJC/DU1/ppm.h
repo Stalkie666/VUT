@@ -6,7 +6,7 @@
 struct ppm{
     unsigned xsize;
     unsigned ysize;
-    char data[];
+    char data[];        // RGB bajty, celkem 3*xsize*ysize
 }
 
 /**
