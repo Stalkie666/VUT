@@ -12,44 +12,22 @@
 
 #define N_PRIME_NUM_TO_PRINT 10
 
-//projit jednotliva cisla v poli po bitech, pouzit bitovy posuv
-    //filter bude unsigned long stejne jako pole.array[] 
-    // asi nejak takhle: ,filter=1; porovnam; filter << 1 - bit posuv; a znova
-    //jeste nekde ukladat se kterym cislem to porovnavam
-    //asi proste budu odecitat, nejjedodussi
-
-//po dokonceni nulovani cisel co nejsou prvocisla, 
-    //vytisknout 10 poslednich(?pomoci rekurze asi,ale slo by to i jinak)
-
-
 void Eratosthenes( bitset_t pole ){
-        // for(bitset_index_t i = 1; i < ( pole[0] / (sizeof(bitset_index_t)*8) + 2 ); ++i ){
-        //     pole[i] = ULONG_MAX;
-        // }
-        // bitset_index_t tmp;
-        // for( bitset_index_t i = 2; i < pole[0]; ++i ){
-        //     if( bitset_getbit(pole,i) == 1 ){
-        //         for(bitset_index_t j = i + 1; i < pole[0]; ++i){
-        //             if( bitset_getbit(pole,j) % i == 0 ){
-        //                 bitset_setbit(pole,j,0);
-        //             }
-        //         }
-        //     }
-        // }
-
+        //eratostenovo sito
         bitset_index_t maxNum = sqrt(pole[0]);
         for(bitset_index_t i = 2; i <= maxNum; ++i){
+            //overeni validnosti cisla - bitu
             if(!( bitset_getbit(pole,i))){
+                //nastaveni vsech nasobku cisla
                 for(bitset_index_t i = 2; i*j <= pole[0]; j++){
                     bitset_setbit(pole,i*j,1);
                 }
             }
         }
 
+        //pole pro poslednich N prvocisel
         bitset_index_t primeNumbers[N_PRIME_NUM_TO_PRINT] = {0};
-
         bitset_index_t index = N_PRIME_NUM_TO_PRINT;
-
         bitset_index_t backwards = pole[0];
 
         while(index && backwards > 0){
