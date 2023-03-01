@@ -23,16 +23,25 @@
 
 
 void Eratosthenes( bitset_t pole ){
-        for(bitset_index_t i = 1; i < ( pole[0] / (sizeof(bitset_index_t)*8) + 2 ); ++i ){
-            pole[i] = ULONG_MAX;
-        }
-        bitset_index_t tmp;
-        for( bitset_index_t i = 2; i < pole[0]; ++i ){
-            if( bitset_getbit(pole,i) == 1 ){
-                for(bitset_index_t j = i + 1; i < pole[0]; ++i){
-                    if( bitset_getbit(pole,j) % i == 0 ){
-                        bitset_setbit(pole,j,0);
-                    }
+        // for(bitset_index_t i = 1; i < ( pole[0] / (sizeof(bitset_index_t)*8) + 2 ); ++i ){
+        //     pole[i] = ULONG_MAX;
+        // }
+        // bitset_index_t tmp;
+        // for( bitset_index_t i = 2; i < pole[0]; ++i ){
+        //     if( bitset_getbit(pole,i) == 1 ){
+        //         for(bitset_index_t j = i + 1; i < pole[0]; ++i){
+        //             if( bitset_getbit(pole,j) % i == 0 ){
+        //                 bitset_setbit(pole,j,0);
+        //             }
+        //         }
+        //     }
+        // }
+
+        bitset_index_t maxNum = sqrt(pole[0]);
+        for(bitset_index_t i = 2; i <= maxNum; ++i){
+            if(!( bitset_getbit(pole,i))){
+                for(bitset_index_t i = 2; i*j <= pole[0]; j++){
+                    bitset_setbit(pole,i*j,1);
                 }
             }
         }
@@ -44,7 +53,7 @@ void Eratosthenes( bitset_t pole ){
         bitset_index_t backwards = pole[0];
 
         while(index && backwards > 0){
-            if( bitset_getbit(pole,backwards) ){
+            if( !(bitset_getbit(pole,backwards)) ){
                 primeNumbers[index-1] = backwards;
                 index--;
             }
