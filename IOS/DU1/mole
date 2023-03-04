@@ -1,0 +1,64 @@
+#!/bin/sh
+
+
+
+print_help(){
+    echo "Napoveda:"
+    echo "      -h \ --help:"
+    echo "                  zobrazi napovedu"
+    echo "      [-g Group] FILE"
+    echo "      [-m] [FILTERS] [DIRECTORY]"
+}
+
+
+while [ "$#" -gt 0 ]; do
+    case $1 in
+        -h | --help)
+            print_help
+            exit 0
+            ;;
+        secret-log)
+            echo "Spusteni secret logu"
+            shift
+            ;;
+        -g)
+            ;;
+        -m)
+            ;;
+        list)
+            ;;
+        -a)
+            ;;
+        -b)
+            ;;
+        *)
+            echo "Chyba"
+            exit 1
+            ;;
+    esac
+done
+
+
+
+
+
+# cast -h
+
+# cast -g Group
+
+# cast -m
+
+# cast list
+
+# cast secret-log
+
+
+# if [  $# -eq 0  ] 
+# then
+#     echo "Chyby podminka"
+# else
+#     if [ $1 = "-d" ]
+#     then
+#         echo "Podminka"
+#     fi
+# fi
