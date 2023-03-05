@@ -3,11 +3,13 @@
    // Autor: Jakub Hamadej, FIT
    // Přeloženo: gcc 9.4.0
 
+#include <assert.h>
+
 typedef unsigned long * bitset_t;
 typedef unsigned long bitset_index_t;
 
 //dodano helperem
-#define VELIKOST sizeof(unsigned long)
+#define VELIKOST_LONG (sizeof(unsigned long)*CHAR_BIT)
 
 
 //sem nejak pridat logiku pro zjisteni jestli se jedna o 64bit nebo 32bit
@@ -16,11 +18,12 @@ typedef unsigned long bitset_index_t;
     //spise ty casti pres else if nebo tak nejak
 
 //na z8sobn9ku
-#define bitset_create(jmeno_pole,velikost)  unsigned long jmeno_pole[velikost/sizeof(unsigned long) + 1 +1] = {0};
+#define bitset_create(jmeno_pole,velikost)  static_assert(velikost > 0, "Zadana velikost je neplatna.\n");\
+                                            unsigned long jmeno_pole[ (velikost/VELIKOST_LONG) + 1 +1] = {velikost,};
 
 //na halde
-#define bitset_alloc(jmeno_pole,velikost)   int allocSize = velikost / sizeof(unsigned long) + 1 + 1;\
-                                            bitset_t jmeno_pole = (unsigned long *)malloc(allocSize * sizeof(unsigned long));
+#define bitset_alloc(jmeno_pole,velikost)   int allocSize = (velikost / VELIKOST_LONG) + 1 + 1;\
+                                            bitset_t jmeno_pole = (bitset_t)malloc(allocSize * sizeof(bitset_index_t));
 
 #define bitset_free(jmeno_pole) free(jmeno_pole)
 
@@ -33,3 +36,6 @@ typedef unsigned long bitset_index_t;
 
 //anonymn9 struktura - dodano helperem - asi nepouziju
 struct {int i;}nazev_promene = {.i = 42}; 
+
+#define bitset_setbit(name, index, value) (_bitset_in_range(name, (bitset_index_t)index) ? _bitset_setbit_nocheck(name, (bitset_index_t)index, value) : (_bitset_setbit_error(name, (bitset_index_t)index), 0))
+
