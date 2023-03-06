@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-
+#mole_rc vzdy v aktualnim souboru
 
 print_help(){
     echo "Napoveda:"
@@ -9,6 +9,11 @@ print_help(){
     echo "      [-g Group] FILE"
     echo "      [-m] [FILTERS] [DIRECTORY]"
 }
+
+GROUP=""
+TIME_AFTER="1970-01-01"
+TIME_BEFORE="2030-12-31"
+
 
 
 while [ "$#" -gt 0 ]; do
@@ -19,14 +24,24 @@ while [ "$#" -gt 0 ]; do
             ;;
         -g)
             GROUP=$2
+            shift
+            shift
             ;;
         -m)
             ;;
         list)
+            echo "list"
+            shift
             ;;
         -a)
+            TIME_AFTER=$2
+            shift
+            shift
             ;;
         -b)
+            TIME_BEFORE=$2
+            shift
+            shift
             ;;
         secret-log)
             echo "Spusteni secret logu"
@@ -44,8 +59,6 @@ done
 
 
 # cast -h
-
-# cast -g Group
 
 # cast -m
 
