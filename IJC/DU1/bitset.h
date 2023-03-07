@@ -29,13 +29,15 @@ typedef unsigned long bitset_index_t;
 
 #define bitset_size(jmeno_pole) (jmeno_pole[0])
 
-#define bitset_setbit(jmeno_pole,index,vyraz)
+//pomocna na zjisteni, jestli je cislo v poli
+#define check_range(jmeno_pole,index) (index < bitset_size(jmeno_pole) && index >= 0)
 
-#define bitset_getbit(jmeno_pole,index)
+#define bitset_setbit(jmeno_pole,index,vyraz) ( check_range(jmeno_pole, index) ? /*nastavit bit*/ : /*zavolat error*/ )
+
+#define bitset_getbit(jmeno_pole,index) ( check_range(jmeno_pole, index) ? /*ziskat bit*/ : /*zavolat error*/ )
 
 
 //anonymn9 struktura - dodano helperem - asi nepouziju
 struct {int i;}nazev_promene = {.i = 42}; 
 
-#define bitset_setbit(name, index, value) (_bitset_in_range(name, (bitset_index_t)index) ? _bitset_setbit_nocheck(name, (bitset_index_t)index, value) : (_bitset_setbit_error(name, (bitset_index_t)index), 0))
 

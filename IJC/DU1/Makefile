@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -pedantic -g -std=c11
+CFLAGS=-Wall -Wextra -pedantic -g -std=c11 -lm
 
 default: run
 
