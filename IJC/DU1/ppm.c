@@ -39,13 +39,22 @@ struct ppm * ppm_read(const char * filename){
             return NULL;
          }
    size_t allocSize = 3*xsize*ysize;
-   struct ppm * retVal = malloc( allocSize*sizeof(struct ppm) );
+   struct ppm * retVal = malloc(sizeof(struct ppm) );
    retVal->xsize = xsize;
    retVal->ysize = ysize;
+   retVal->data = malloc(allocSize*sizeof(char));
 
+   //nahrat jednotlive bajty
+
+
+
+
+
+   return retVal;
 }
 
 
 void ppm_free(struct ppm *p){
+   free(p->data);
    free(p);
 }
