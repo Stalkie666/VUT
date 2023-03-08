@@ -2,17 +2,33 @@
 
 #mole_rc vzdy v aktualnim souboru
 
+
+# cast -h
 print_help(){
     echo "Napoveda:"
     echo "      -h \ --help:"
     echo "                  zobrazi napovedu"
     echo "      [-g Group] FILE"
     echo "      [-m] [FILTERS] [DIRECTORY]"
+    echo "      list [FILTERS] [DIRECTORY]"
+    exit 0
 }
 
+error_func(){
+    echo "Chybne zadane argumenty"
+    exit 1
+}
+
+POSIXLY_CORRECT=yes
+
 GROUP=""
+FILE_DIR=""
+
 TIME_AFTER="1970-01-01"
-TIME_BEFORE="2030-12-31"
+TIME_BEFORE="9999-12-31"
+bool_MOST_EDITED=false
+bool_LIST=false
+bool_SECRED_LOG=false
 
 
 
@@ -20,7 +36,6 @@ while [ "$#" -gt 0 ]; do
     case $1 in
         -h | --help)
             print_help
-            exit 0
             ;;
         -g)
             GROUP=$2
@@ -28,9 +43,7 @@ while [ "$#" -gt 0 ]; do
             shift
             ;;
         -m)
-            ;;
-        list)
-            echo "list"
+            bool_MOST_EDITED=true
             shift
             ;;
         -a)
@@ -43,36 +56,50 @@ while [ "$#" -gt 0 ]; do
             shift
             shift
             ;;
+        list)
+            bool_LIST=true
+            shift
+            ;;
         secret-log)
-            echo "Spusteni secret logu"
+            bool_SECRED_LOG=true
             shift
             ;;
         *)
-            echo "Chyba"
-            exit 1
+            if [ $# -gt 1 ]
+            then
+                error_func
+            fi
+            FILE_DIR=$1
+            shift       
             ;;
     esac
 done
 
 
-
-
-
-# cast -h
-
-# cast -m
-
 # cast list
+if [  "$bool_LIST" = true  ]
+then
+    echo "List"
+    exit 0
+fi
 
 # cast secret-log
+if [  "$bool_SECRED_LOG" = true ]
+then
+    echo "Secret log"
+    exit 0
+fi
 
-
-# if [  $# -eq 0  ] 
-# then
-#     echo "Chyby podminka"
-# else
-#     if [ $1 = "-d" ]
-#     then
-#         echo "Podminka"
-#     fi
-# fi
+#
+echo "Klasik editor"
+if [ "$FILE_DIR" = "" ] || [[ -d $FILE_DIR ]]
+then
+    if [ "$bool_MOST_EDITED" = true ]
+    then
+        echo "Most Edited"
+    else
+        echo "Last edited edited"
+    fi
+else
+    echo "Soubor"
+fi
