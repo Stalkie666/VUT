@@ -12,14 +12,18 @@
 #define ARRAY_SIZE 230000000UL
 #define NUMBERS_TO_PRINT 10
 
+/**
+ * print last N prime numbers
+*/
 void printLastPrimeNumbers(bitset_t array, bitset_index_t indexOfLastNumberOfArray, bitset_index_t numbersToPrint){
+    //alloc of tmp data types
     bitset_t tmpArr = calloc(numbersToPrint,sizeof(bitset_index_t));
     if( tmpArr == NULL ){
         fprintf(stderr,"Memory allocation failure!\n");
         return;
     }
     bitset_index_t tmpNumToPrint = numbersToPrint;
-    
+    //search of latest prime numbers and store them in array
     while(tmpNumToPrint > 0 && indexOfLastNumberOfArray > 0){
         if( bitset_getbit(array,indexOfLastNumberOfArray) == 0 ){
             tmpArr[tmpNumToPrint-1] = indexOfLastNumberOfArray;
@@ -27,6 +31,7 @@ void printLastPrimeNumbers(bitset_t array, bitset_index_t indexOfLastNumberOfArr
         }
         --indexOfLastNumberOfArray;
     }
+    //print latest prime numbers
     for(bitset_index_t i = 0; i < numbersToPrint; ++i ){
         printf("%lu\n", tmpArr[i]);
     }
