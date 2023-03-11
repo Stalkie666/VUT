@@ -17,7 +17,9 @@
 int main(int argc, char *argv[]){
    //prepare message and check for end bit
    char message[MAX_MESSAGE_LENGTH] = {0};
+   //for counting bits
    size_t messageIndex = 0;
+   //for check if message is ended
    int isMsgEnded = 0;
 
    //check number of arguments
@@ -35,16 +37,21 @@ int main(int argc, char *argv[]){
 
 
    for(size_t i = START_PRIME; i < maskSize; ++i ){
+      //check if is a primebit
       if( !bitset_getbit(maskArray,i) ){
+         //read last bit
          int tmpBit = img->data[i] & 1;
          message[messageIndex / CHAR_BIT] |= (char)tmpBit << (messageIndex % CHAR_BIT);
          ++messageIndex;
 
+         //check if is whole char
          if( messageIndex % CHAR_BIT == 0 ){
+            //check for '\0'
             if( message[ (messageIndex / CHAR_BIT) - 1 ] == '\0' ){
                isMsgEnded = 1;
                break;
             }
+            //check for overflow array
             if( messageIndex / CHAR_BIT >= MAX_MESSAGE_LENGTH ){
                break;
             }
