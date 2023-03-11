@@ -27,22 +27,3 @@ void Eratosthenes( bitset_t pole ){
         }
     }
 }
-
-// //pole pro poslednich N prvocisel
-        // bitset_index_t primeNumbers[N_PRIME_NUM_TO_PRINT] = {0};
-        // bitset_index_t index = N_PRIME_NUM_TO_PRINT;
-        // bitset_index_t backwards = pole[0];
-
-        // while(index && backwards > 0){
-        //     if( !(bitset_getbit(pole,backwards)) ){
-        //         primeNumbers[index-1] = backwards;
-        //         index--;
-        //     }
-        //     backwards--;
-        // }
-
-        // for(bitset_index_t i = 0; i < N_PRIME_NUM_TO_PRINT; ++i){
-        //     if(primeNumbers[i] != 0){
-        //         printf("%d\n",primeNumbers[i]);
-        //     }
-        // }
