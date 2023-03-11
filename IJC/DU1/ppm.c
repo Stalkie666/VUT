@@ -38,13 +38,24 @@ struct ppm * ppm_read(const char * filename){
             fclose(stream);
             return NULL;
          }
+   //allocation of structure and data array      
    size_t allocSize = 3*xsize*ysize;
    struct ppm * retVal = malloc(sizeof(struct ppm) );
    retVal->xsize = xsize;
    retVal->ysize = ysize;
    retVal->data = malloc(allocSize*sizeof(char));
 
-   //nahrat jednotlive bajty
+   size_t realSize = fread( retVal->data, sizeof(char), allocSize, stream );
+
+   if( !feof(stream) || realSize < allocSize ){
+      fclose(stream);
+      warning("Nespravna velikost souboru\n");
+      free(retVal->data);
+      free(retVal);
+      return NUll;
+   }
+   fclose(stream);
+
 
 
 
