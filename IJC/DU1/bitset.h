@@ -4,6 +4,10 @@
    // Přeloženo: gcc 9.4.0
 
 #include <assert.h>
+#include <limits.h>
+#include <stdlib.h>
+
+#include "error.h"
 
 typedef unsigned long * bitset_t;
 typedef unsigned long bitset_index_t;
@@ -72,9 +76,3 @@ inline bitset_index_t bitset_getbit(bitset_t jmeno_pole, bitset_index_t index){
 }
 
 #endif
-
-
-//anonymn9 struktura - dodano helperem - asi nepouziju
-//struct {int i;}nazev_promene = {.i = 42}; 
-
-
