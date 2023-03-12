@@ -57,9 +57,7 @@ struct ppm * ppm_read(const char * filename){
 
    size_t realSize = fread( retVal->data, sizeof(char), allocSize, stream );
 
-
-   bool isEND = (fgetc(stream) == EOF);
-   if( !isEND || realSize < allocSize ){
+   if( (fgetc(stream) != EOF) || realSize < allocSize ){
       fclose(stream);
       warning("Nespravna velikost souboru\n");
       free(retVal->data);
