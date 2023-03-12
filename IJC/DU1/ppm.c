@@ -17,20 +17,18 @@ bool isWhiteSpace(char c){
 }
 
 struct ppm * ppm_read(const char * filename){
-   //otevre soubor pro cteni binarne
+   //open file and read it binary
    FILE * stream = fopen(filename,"rb");
    if( !stream ){
       warning("Otevření souboru: %s selhalo\n",filename);
       return NULL;
    }
 
-      // TO-DO
-      //dodelat
    unsigned xsize;
    unsigned ysize;
    char arr[3];
    unsigned maxVal;
-
+   //load data about size of picture and 
    if(   fscanf(stream, "%2s %u %u %u", arr, &xsize, &ysize, &maxVal) != 4 ||
          maxVal != 255 ||
          !isWhiteSpace( fgetc(stream) ) ||
@@ -54,9 +52,9 @@ struct ppm * ppm_read(const char * filename){
       free(retVal);
       return NULL;
    }
-
+   //copy data from stream to structure
    size_t realSize = fread( retVal->data, sizeof(char), allocSize, stream );
-
+   //check if success
    if( (fgetc(stream) != EOF) || realSize < allocSize ){
       fclose(stream);
       warning("Nespravna velikost souboru\n");
@@ -65,12 +63,6 @@ struct ppm * ppm_read(const char * filename){
       return NULL;
    }
    fclose(stream);
-
-
-
-
-
-
    return retVal;
 }
 
