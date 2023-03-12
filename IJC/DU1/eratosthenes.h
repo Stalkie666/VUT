@@ -3,6 +3,4 @@
    // Autor: Jakub Hamadej, FIT
    // Přeloženo: gcc 9.4.0
 
-#include "bitset.h"
-
 void Eratosthenes( bitset_t pole );

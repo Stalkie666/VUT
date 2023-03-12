@@ -22,33 +22,32 @@ typedef unsigned long bitset_index_t;
 
 //create and init dynamic array
 #define bitset_alloc(jmeno_pole,velikost)   int allocSize = (velikost / VELIKOST_LONG) + 1 + 1;\
-                                            bitset_t jmeno_pole = (bitset_t)malloc(allocSize * sizeof(bitset_index_t));
+                                            bitset_t jmeno_pole = (bitset_t)calloc(allocSize, sizeof(bitset_index_t));
 //free dynamic array
 #define bitset_free(jmeno_pole) free(jmeno_pole)
 
 
 #ifndef USE_INLINE
 
-    //get size of array
-    #define bitset_size(jmeno_pole) (jmeno_pole[0]);
+//get size of array
+#define bitset_size(jmeno_pole) (jmeno_pole[0])
 
-    //help makro for check range of array
-    #define check_range(jmeno_pole,index) (index < bitset_size(jmeno_pole) && index >= 0);
-
-    //set bit
-    #define bitset_setbit(jmeno_pole,index,vyraz) ( (check_range(jmeno_pole, index)) ? \
-                                                    (   (vyraz) ? \
-                                                        ( jmeno_pole[ (index / VELIKOST_LONG) + 1 ] |= vyraz << (index % VELIKOST_LONG) ) : \
-                                                        ( jmeno_pole[ (index / VELIKOST_LONG) + 1 ] &= ~( vyraz <<  (index % VELIKOST_LONG) ) ) ) :\
-                                                    (  error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1) ) );
-    //get bit
-    #define bitset_getbit(jmeno_pole,index) (   (check_range(jmeno_pole, index)) ? \
-                                                ( (jmeno_pole[(index / VELIKOST_LONG)+1] >> (index % VELIKOST_LONG)) & 1 ) : \
-                                                (error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1) ) );
+//help makro for check range of array
+#define _check_range(jmeno_pole,index) (index < bitset_size(jmeno_pole))
+//set bit after check
+#define _bitset_setbit_true(jmeno_pole,index,vyraz) ((vyraz)?\
+                                                    ( jmeno_pole[ (index / VELIKOST_LONG) + 1UL ] |= (1UL << (index % VELIKOST_LONG) ) ) : \
+                                                    ( jmeno_pole[ (index / VELIKOST_LONG) + 1UL ] &= ~( 1UL <<  (index % VELIKOST_LONG) ) ))  
+//set bit
+#define bitset_setbit(jmeno_pole,index,vyraz) ( (_check_range(jmeno_pole, index))? \
+                                                (_bitset_setbit_true(jmeno_pole,index,vyraz)) : \
+                                                (  (error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1)) ,0 ) )
+//get bit
+#define bitset_getbit(jmeno_pole,index) (   (_check_range(jmeno_pole, index))? \
+                                            ( (jmeno_pole[(index / VELIKOST_LONG)+1] >> (index % VELIKOST_LONG)) & 1 ): \
+                                            (error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1),0 ) )
 
 #endif
-
-
 
 #ifdef USE_INLINE
 
@@ -61,10 +60,10 @@ inline void bitset_setbit(bitset_t jmeno_pole, bitset_index_t index, size_t vyra
         error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1);
     }
     if(vyraz){
-        jmeno_pole[ (index / VELIKOST_LONG) + 1 ] |= vyraz << (index % VELIKOST_LONG);
+        jmeno_pole[ (index / VELIKOST_LONG) + 1UL ] |= (1UL << (index % VELIKOST_LONG));
     }
     else{
-        jmeno_pole[ (index / VELIKOST_LONG) + 1 ] &= ~( vyraz <<  (index % VELIKOST_LONG) );
+        jmeno_pole[ (index / VELIKOST_LONG) + 1UL ] &= ~( 1UL <<  (index % VELIKOST_LONG) );
     }
 }
 
@@ -72,7 +71,7 @@ inline bitset_index_t bitset_getbit(bitset_t jmeno_pole, bitset_index_t index){
     if( index >= bitset_size(jmeno_pole) ){
         error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1);
     }
-    return ( name[ (index / VELIKOST_LONG) + 1 ] >> (index % VELIKOST_LONG)) & 1 ;
+    return ( jmeno_pole[ (index / VELIKOST_LONG) + 1UL ] >> (index % VELIKOST_LONG)) & 1UL ;
 }
 
 #endif

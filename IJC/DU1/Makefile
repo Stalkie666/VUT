@@ -1,26 +1,19 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -pedantic -g -std=c11 -lm
+CFLAGS=-g -std=c11 -pedantic -Wall -Wextra
+LIBS=-lm
 XLOGIN=xhamad03
 
-default: primes primes-i steg-decode
+run: primes primes-i
 
-run: primes primes-i steg-decode
-	./primes
-	./primes-i
+primes: primes.c eratosthenes.c error.c
+	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
-primes: primes.o
-	$(CC) $(CFLAGS) -o $@ $^
-primes-i: primes-i.o
-	$(CC) $(CFLAGS) -DUSE_INLINE -o $@ $^
-steg-decode: steg-decode.o
-	$(CC) $(CFLAGS) -o $@ $^
+primes-i: primes.c eratosthenes.c error.c bitset.c
+	$(CC) $(CFLAGS) -DUSE_INLINE $^ $(LIBS) -o $@ 
 
-steg-decode.o: steg-decode.c
-	$(CC) $(CFLAGS) -o $@ $^
-primes.o: primes.c bitset.h
-	$(CC) $(CFLAGS) -o $@ $^
-primes-i.o: primes.c bitset.h
-	$(CC) $(CFLAGS) -DUSE_INLINE -o $@ $^
+eratosthenes.o: eratosthenes.c
+	$(CC) $(CFLAGS) $^ -o $@
+
 
 zip:
 	zip $(XLOGIN).zip *.c *.h Makefile

@@ -9,7 +9,7 @@
 #include "bitset.h"
 #include "eratosthenes.h"
 
-#define ARRAY_SIZE 230000000UL
+#define ARRAY_SIZE 200UL
 #define NUMBERS_TO_PRINT 10
 
 /**
