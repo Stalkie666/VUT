@@ -6,8 +6,8 @@
 struct ppm{
     unsigned xsize;
     unsigned ysize;
-    char data[];        // RGB bajty, celkem 3*xsize*ysize
-}
+    char * data;        // RGB bajty, celkem 3*xsize*ysize
+};
 
 /**
  * load content of PPM file into dynamic allocated structure by this function

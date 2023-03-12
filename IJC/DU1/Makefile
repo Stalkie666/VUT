@@ -11,8 +11,8 @@ primes: primes.c eratosthenes.c error.c
 primes-i: primes.c eratosthenes.c error.c bitset.c
 	$(CC) $(CFLAGS) -DUSE_INLINE $^ $(LIBS) -o $@ 
 
-eratosthenes.o: eratosthenes.c
-	$(CC) $(CFLAGS) $^ -o $@
+steg-decode: steg-decode.c eratosthenes.c ppm.c error.c
+	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
 
 zip:

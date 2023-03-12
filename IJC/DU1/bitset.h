@@ -22,7 +22,8 @@ typedef unsigned long bitset_index_t;
 
 //create and init dynamic array
 #define bitset_alloc(jmeno_pole,velikost)   int allocSize = (velikost / VELIKOST_LONG) + 1 + 1;\
-                                            bitset_t jmeno_pole = (bitset_t)calloc(allocSize, sizeof(bitset_index_t));
+                                            bitset_t jmeno_pole = (bitset_t)calloc(allocSize, sizeof(bitset_index_t));\
+                                            jmeno_pole[0] = velikost;
 //free dynamic array
 #define bitset_free(jmeno_pole) free(jmeno_pole)
 

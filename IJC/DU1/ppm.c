@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "ppm.h"
 #include "error.h"
@@ -41,18 +42,29 @@ struct ppm * ppm_read(const char * filename){
    //allocation of structure and data array      
    size_t allocSize = 3*xsize*ysize;
    struct ppm * retVal = malloc(sizeof(struct ppm) );
+   if( !retVal ){
+      fclose(stream);
+      return NULL;
+   }
    retVal->xsize = xsize;
    retVal->ysize = ysize;
    retVal->data = malloc(allocSize*sizeof(char));
+   if( !(retVal->data) ){
+      fclose(stream);
+      free(retVal);
+      return NULL;
+   }
 
    size_t realSize = fread( retVal->data, sizeof(char), allocSize, stream );
 
-   if( !feof(stream) || realSize < allocSize ){
+
+   bool isEND = (fgetc(stream) == EOF);
+   if( !isEND || realSize < allocSize ){
       fclose(stream);
       warning("Nespravna velikost souboru\n");
       free(retVal->data);
       free(retVal);
-      return NUll;
+      return NULL;
    }
    fclose(stream);
 
