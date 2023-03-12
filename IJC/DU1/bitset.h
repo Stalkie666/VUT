@@ -30,21 +30,21 @@ typedef unsigned long bitset_index_t;
 #ifndef USE_INLINE
 
     //get size of array
-    #define bitset_size(jmeno_pole) (jmeno_pole[0])
+    #define bitset_size(jmeno_pole) (jmeno_pole[0]);
 
     //help makro for check range of array
-    #define check_range(jmeno_pole,index) (index < bitset_size(jmeno_pole) && index >= 0)
+    #define check_range(jmeno_pole,index) (index < bitset_size(jmeno_pole) && index >= 0);
 
     //set bit
     #define bitset_setbit(jmeno_pole,index,vyraz) ( (check_range(jmeno_pole, index)) ? \
                                                     (   (vyraz) ? \
                                                         ( jmeno_pole[ (index / VELIKOST_LONG) + 1 ] |= vyraz << (index % VELIKOST_LONG) ) : \
                                                         ( jmeno_pole[ (index / VELIKOST_LONG) + 1 ] &= ~( vyraz <<  (index % VELIKOST_LONG) ) ) ) :\
-                                                    (  error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1) ) )
+                                                    (  error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1) ) );
     //get bit
     #define bitset_getbit(jmeno_pole,index) (   (check_range(jmeno_pole, index)) ? \
                                                 ( (jmeno_pole[(index / VELIKOST_LONG)+1] >> (index % VELIKOST_LONG)) & 1 ) : \
-                                                (error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1) ) )
+                                                (error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1) ) );
 
 #endif
 

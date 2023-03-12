@@ -15,15 +15,15 @@
 #define MAX_MESSAGE_LENGTH 10000
 
 int main(int argc, char *argv[]){
+   //check number of arguments
+   if(argc != 2) error_exit("Chybny pocet argumentu.\n");
+
    //prepare message and check for end bit
    char message[MAX_MESSAGE_LENGTH] = {0};
    //for counting bits
    size_t messageIndex = 0;
    //for check if message is ended
    int isMsgEnded = 0;
-
-   //check number of arguments
-   if(argc != 2) error_exit("Chybny pocet argumentu.\n");
 
    //load data from picture
    struct ppm * img = ppm_read(argv[1]);
