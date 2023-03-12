@@ -1,0 +1,2 @@
+# ignore ALL .o files
+*.o
