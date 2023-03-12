@@ -14,6 +14,8 @@ primes-i: primes.c eratosthenes.c error.c bitset.c
 steg-decode: steg-decode.c eratosthenes.c ppm.c error.c
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
+#zapsat aby se kompilovali pouze soubory ktere se nejak zmenili
+
 
 zip:
 	zip $(XLOGIN).zip *.c *.h Makefile
