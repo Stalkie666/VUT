@@ -20,9 +20,6 @@ error_func(){
 
 POSIXLY_CORRECT=yes
 
-#doplnit
-MOLE_RC="tvojeMama"
-
 GROUP=""
 FILE_DIR=""
 
@@ -31,8 +28,6 @@ TIME_BEFORE="9999-12-31"
 bool_MOST_EDITED=false
 bool_LIST=false
 bool_SECRED_LOG=false
-
-
 
 while [ "$#" -gt 0 ]; do
     case $1 in
@@ -77,8 +72,20 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
+#kontrola jestli je mole_rc definovano
+if [[ ! -v MOLE_RC ]]
+then
+    echo "promena MOLE_RC neni nastavena"
+    exit 1
+else
+    if [ ! -e "$MOLE_RC" ]
+    then
+        mkdir -p "$(dirname "$MOLE_RC")" && touch $MOLE_RC
+    fi
+fi
+
 #kontrola kdyz jsou zadane oba
-if ["$bool_LIST" = true] && ["$bool_SECRED_LOG" = true]
+if [[ ("$bool_LIST" = true  &&  "$bool_SECRED_LOG" = true ) ]]
 then
     echo "Neplatne parametry. (list a secret-log zaroven)"
     exit 1
