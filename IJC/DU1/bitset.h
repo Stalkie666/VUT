@@ -52,11 +52,11 @@ typedef unsigned long bitset_index_t;
 
 #ifdef USE_INLINE
 
-inline bitset_index_t bitset_size(bitset_t jmeno_pole){
+static inline bitset_index_t bitset_size(bitset_t jmeno_pole){
     return jmeno_pole[0];
 }
 
-inline void bitset_setbit(bitset_t jmeno_pole, bitset_index_t index, size_t vyraz){
+static inline void bitset_setbit(bitset_t jmeno_pole, bitset_index_t index, size_t vyraz){
     if( index >= bitset_size(jmeno_pole) ){
         error_exit("bitset_setbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1);
     }
@@ -68,7 +68,7 @@ inline void bitset_setbit(bitset_t jmeno_pole, bitset_index_t index, size_t vyra
     }
 }
 
-inline bitset_index_t bitset_getbit(bitset_t jmeno_pole, bitset_index_t index){
+static inline bitset_index_t bitset_getbit(bitset_t jmeno_pole, bitset_index_t index){
     if( index >= bitset_size(jmeno_pole) ){
         error_exit("bitset_getbit: Index %lu mimo rozsah 0..%lu",(unsigned long)index,(unsigned long)bitset_size(jmeno_pole)-1);
     }

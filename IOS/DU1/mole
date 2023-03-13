@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#mole_rc vzdy v aktualnim souboru
 
 
 # cast -h
@@ -20,6 +19,9 @@ error_func(){
 }
 
 POSIXLY_CORRECT=yes
+
+#doplnit
+MOLE_RC="tvojeMama"
 
 GROUP=""
 FILE_DIR=""
@@ -75,6 +77,12 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
+#kontrola kdyz jsou zadane oba
+if ["$bool_LIST" = true] && ["$bool_SECRED_LOG" = true]
+then
+    echo "Neplatne parametry. (list a secret-log zaroven)"
+    exit 1
+fi 
 
 # cast list
 if [  "$bool_LIST" = true  ]
@@ -90,7 +98,7 @@ then
     exit 0
 fi
 
-#
+# zkontrolovat existenci [directory]
 echo "Klasik editor"
 if [ "$FILE_DIR" = "" ] || [[ -d $FILE_DIR ]]
 then

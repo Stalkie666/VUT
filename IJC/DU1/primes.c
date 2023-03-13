@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "bitset.h"
 #include "eratosthenes.h"
 
 #define ARRAY_SIZE 200UL

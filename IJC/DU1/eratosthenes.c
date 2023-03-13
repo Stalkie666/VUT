@@ -4,8 +4,6 @@
    // Přeloženo: gcc 9.4.0
 
 #include <math.h>
-
-#include "bitset.h"
 #include "eratosthenes.h"
 
 void Eratosthenes( bitset_t pole ){
@@ -18,8 +16,8 @@ void Eratosthenes( bitset_t pole ){
         //overeni validnosti cisla - bitu
         if(( bitset_getbit(pole,i)) == 0){
             //nastaveni vsech nasobku cisla
-            for(bitset_index_t j = i*i; j < arraySize; j = j + i){
-                (bitset_setbit(pole,j,1));
+            for(bitset_index_t j = 2; j*i < arraySize; j++){
+                (bitset_setbit(pole,(j*i),1));
             }
         }
     }
