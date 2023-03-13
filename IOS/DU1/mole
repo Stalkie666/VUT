@@ -78,6 +78,7 @@ then
     echo "promena MOLE_RC neni nastavena"
     exit 1
 else
+    #vytvoreni $MOLE_RC pokud jeste neni
     if [ ! -e "$MOLE_RC" ]
     then
         mkdir -p "$(dirname "$MOLE_RC")" && touch $MOLE_RC
