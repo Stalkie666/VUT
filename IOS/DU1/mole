@@ -17,10 +17,44 @@ error_func(){
     echo "Chybne zadane argumenty"
     exit 1
 }
+# list
+list_function(){
+    echo "list function TO-DO"
+}
+# secret-log
+secret_log_function(){
+    echo "secret-log function TO-DO"
+}
+# re-open file
+re_open_file_function(){
+    # kontrola jestli otevrit posledni nebo nejvice otevirany
+    if [ "$bool_MOST_EDITED" = true ]
+    then
+        echo "Most Edited"
+    else
+        echo "Last edited edited"
+    fi
+    echo "re-open function TO-DO"
+}
+# open file
+open_file_function(){
+    echo "Soubor"
+    # pokud soubor neexistuje
+    if [ ! -e "$FILE_DIR" ]
+    then
+        echo "Vytvarim soubor"
+        mkdir -p "$(dirname "$FILE_DIR")" && touch "$FILE_DIR"
+    fi
+    
+    REAL_PATH="$(realpath $FILE_DIR)"
+    REAL_DATE="$(date '+%Y-%m-%d %H-%M-%S')"
+    echo "$REAL_PATH $REAL_DATE $GROUP" >> $MOLE_RC
+    #otevrit soubor
+}
 
 POSIXLY_CORRECT=yes
 
-GROUP=""
+GROUP="-"
 FILE_DIR=""
 
 TIME_AFTER="1970-01-01"
@@ -81,6 +115,7 @@ else
     #vytvoreni $MOLE_RC pokud jeste neni
     if [ ! -e "$MOLE_RC" ]
     then
+        echo "tvorim mole_rc"
         mkdir -p "$(dirname "$MOLE_RC")" && touch $MOLE_RC
     fi
 fi
@@ -96,6 +131,7 @@ fi
 if [  "$bool_LIST" = true  ]
 then
     echo "List"
+    list_function
     exit 0
 fi
 
@@ -103,6 +139,7 @@ fi
 if [  "$bool_SECRED_LOG" = true ]
 then
     echo "Secret log"
+    secret_log_function
     exit 0
 fi
 
@@ -110,12 +147,7 @@ fi
 echo "Klasik editor"
 if [ "$FILE_DIR" = "" ] || [[ -d $FILE_DIR ]]
 then
-    if [ "$bool_MOST_EDITED" = true ]
-    then
-        echo "Most Edited"
-    else
-        echo "Last edited edited"
-    fi
+    re_open_file_function
 else
-    echo "Soubor"
+    open_file_function
 fi
