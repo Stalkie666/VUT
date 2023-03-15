@@ -39,17 +39,32 @@ re_open_file_function(){
 # open file
 open_file_function(){
     echo "Soubor"
+    # kontrola, jestli ma spravny format
+    if [[ $FILE_DIR == */ ]]
+    then
+        echo "Neplatny format jmena souboru (lomitko na konci)"
+        exit 1
+    fi
     # pokud soubor neexistuje
     if [ ! -e "$FILE_DIR" ]
     then
         echo "Vytvarim soubor"
         mkdir -p "$(dirname "$FILE_DIR")" && touch "$FILE_DIR"
     fi
-    
+    #zprava pro log
     REAL_PATH="$(realpath $FILE_DIR)"
     REAL_DATE="$(date '+%Y-%m-%d %H-%M-%S')"
     echo "$REAL_PATH $REAL_DATE $GROUP" >> $MOLE_RC
-    #otevrit soubor
+    # otevrit soubor
+    if [[ -v EDITOR ]]
+    then
+        $EDITOR $REAL_PATH
+    elif [[ -v VISUAL ]]
+    then
+        $VISUAL $REAL_PATH
+    else
+        vi $REAL_PATH
+    fi
 }
 
 POSIXLY_CORRECT=yes
