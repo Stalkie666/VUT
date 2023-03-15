@@ -26,17 +26,7 @@ secret_log_function(){
     echo "secret-log function TO-DO"
 }
 
-open_in_editor_function(){
-    if [[ -v EDITOR ]]
-    then
-        $EDITOR $REAL_PATH
-    elif [[ -v VISUAL ]]
-    then
-        $VISUAL $REAL_PATH
-    else
-        vi $REAL_PATH
-    fi
-}
+
 
 # re-open file
 re_open_file_function(){
@@ -51,7 +41,6 @@ re_open_file_function(){
 }
 # open file
 open_file_function(){
-    echo "Soubor"
     # kontrola, jestli ma spravny format
     if [[ $FILE_DIR == */ ]]
     then
@@ -61,7 +50,6 @@ open_file_function(){
     # pokud soubor neexistuje
     if [ ! -e "$FILE_DIR" ]
     then
-        echo "Vytvarim soubor"
         mkdir -p "$(dirname "$FILE_DIR")" && touch "$FILE_DIR"
     fi
     #zprava pro log
@@ -71,6 +59,19 @@ open_file_function(){
     # otevrit soubor
     open_in_editor_function
     
+}
+
+# otevre soubor v zadanem editoru
+open_in_editor_function(){
+    if [[ -v EDITOR ]]
+    then
+        $EDITOR $REAL_PATH
+    elif [[ -v VISUAL ]]
+    then
+        $VISUAL $REAL_PATH
+    else
+        vi $REAL_PATH
+    fi
 }
 
 POSIXLY_CORRECT=yes
