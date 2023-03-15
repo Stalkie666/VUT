@@ -30,6 +30,12 @@ secret_log_function(){
 
 # re-open file
 re_open_file_function(){
+    # nejprve zpracovat mozne kandidaty
+    # potom az zvolit jestli last nebo most
+
+    #zkontrolovat jestli mam neco po filtraci
+    #pokud ne, nahlasit chybu a ukoncit skript
+
     # kontrola jestli otevrit posledni nebo nejvice otevirany
     if [ "$bool_MOST_EDITED" = true ]
     then
