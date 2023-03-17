@@ -2,23 +2,43 @@ CC=gcc
 CFLAGS=-g -std=c11 -pedantic -Wall -Wextra
 LIBS=-lm
 XLOGIN=xhamad03
+TARGETS=primes primes-i steg-decode
 
-run: primes primes-i
+run: primes primes-i steg-decode
+	./primes
+	./primes-i
 
-primes: primes.c eratosthenes.c error.c
-	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
+primes: primes.o eratosthenes.o error.o
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
-primes-i: primes.c eratosthenes.c error.c bitset.c
+primes-i: primes-i.o eratosthenes-i.o error.o bitset.o
 	$(CC) $(CFLAGS) -DUSE_INLINE $^ $(LIBS) -o $@ 
 
-steg-decode: steg-decode.c eratosthenes.c ppm.c error.c
+steg-decode: steg-decode.o eratosthenes.o ppm.o error.o
 	$(CC) $(CFLAGS) $^ $(LIBS) -o $@
 
-#zapsat aby se kompilovali pouze soubory ktere se nejak zmenili
+primes.o: primes.c eratosthenes.h
+	$(CC) $(CFLAGS) -c -o $@ primes.c
+steg-decode.o: steg-decode.c bitset.h error.h ppm.h
+	$(CC) $(CFLAGS) -c -o $@ steg-decode.c 
+eratosthenes.o: eratosthenes.c eratosthenes.h bitset.h
+	$(CC) $(CFLAGS) -c -o $@ eratosthenes.c
+error.o: error.c error.h
+	$(CC) $(CFLAGS) -c -o $@ error.c
+bitset.o: bitset.c bitset.h
+	$(CC) $(CFLAGS) -DUSE_INLINE -c -o $@ bitset.c
+ppm.o: ppm.c ppm.h error.h
+	$(CC) $(CFLAGS) -c -o $@ ppm.c
+primes-i.o: primes.c eratosthenes.h
+	$(CC) $(CFLAGS) -DUSE_INLINE -c -o $@ primes.c
+eratosthenes-i.o: eratosthenes.c eratosthenes.h
+	$(CC) $(CFLAGS) -DUSE_INLINE -c -o $@ eratosthenes.c
+
+
 
 
 zip:
 	zip $(XLOGIN).zip *.c *.h Makefile
 
 clean:
-	rm -f *.o primes primes-i steg-decode
+	rm -f $(TARGETS) *.o $(XLOGIN).zip
