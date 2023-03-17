@@ -1,10 +1,14 @@
+# Řešení IJC-DU1, příklad a+b), 22.3.2023
+# Autor: Jakub Hamadej, FIT
+# Přeloženo: toto je Makefile
+
 CC=gcc
 CFLAGS=-g -std=c11 -pedantic -Wall -Wextra
 LIBS=-lm
 XLOGIN=xhamad03
 TARGETS=primes primes-i steg-decode
 
-run: primes primes-i steg-decode
+run: $(TARGETS)
 	./primes
 	./primes-i
 
