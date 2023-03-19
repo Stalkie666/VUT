@@ -30,21 +30,39 @@ secret_log_function(){
 
 # re-open file
 re_open_file_function(){
-    # nejprve zpracovat mozne kandidaty
-    # potom az zvolit jestli last nebo most
-
+    #uprava group
+    GROUP="$GROUP$"
+    GROUP="${GROUP//,/$|}"
+    # nejprve zpracovat mozne kandidaty, casove + jestli vubec existuji
+    FILE_DIR="$(readlink -f $FILE_DIR)"
+    SOUBORY="$( awk  -v DATE_AFTER="$TIME_AFTER" -v DATE_BEFORE="$TIME_BEFORE" \
+                        '$2 > DATE_AFTER && $2 < DATE_BEFORE && system("[ ! -f " $1 " ]") \
+                        {print  $1 " " $4}' "$MOLE_RC")"
+    # filtrace GROUP
+    if [ "$GROUP" != "-$" ]
+    then
+        SOUBORY="$(echo "$SOUBORY" | grep -E "$GROUP" | awk '{print $1}')"
+    else
+        SOUBORY="$(echo "$SOUBORY" | awk '{print $1}')"
+    fi
+    SOUBORY="$(echo "$SOUBORY" | grep "^$FILE_DIR/[^/]*$" )"
     #zkontrolovat jestli mam neco po filtraci
     #pokud ne, nahlasit chybu a ukoncit skript
-
+    if [ "$SOUBORY" == "" ]
+    then
+        echo "! chyba, nebyl nalezen žádný soubor k otevření"
+        exit 1
+    fi
     # kontrola jestli otevrit posledni nebo nejvice otevirany
     if [ "$bool_MOST_EDITED" = true ]
     then
-        echo "Most Edited"
+        REAL_PATH="$(echo "$SOUBORY" | sort | uniq -c | sort -nr | awk '{print $2}' | head -1)"
     else
-        echo "Last edited edited"
+        REAL_PATH="$(echo "$SOUBORY" | tail -1)"
     fi
-    echo "re-open function TO-DO"
+    open_in_editor_function
 }
+
 # open file
 open_file_function(){
     # kontrola, jestli ma spravny format
@@ -83,7 +101,7 @@ open_in_editor_function(){
 POSIXLY_CORRECT=yes
 
 GROUP="-"
-FILE_DIR=""
+FILE_DIR=$PWD
 
 TIME_AFTER="1970-01-01"
 TIME_BEFORE="9999-12-31"
@@ -134,6 +152,7 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
+
 #kontrola jestli je mole_rc definovano
 if [[ ! -v MOLE_RC ]]
 then
@@ -172,10 +191,11 @@ then
 fi
 
 # zkontrolovat existenci [directory]
-echo "Klasik editor"
-if [ "$FILE_DIR" = "" ] || [[ -d $FILE_DIR ]]
+if [[ -d $FILE_DIR ]]
 then
     re_open_file_function
+    exit 0
 else
     open_file_function
+    exit 0
 fi
