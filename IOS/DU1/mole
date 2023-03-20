@@ -27,8 +27,9 @@ list_function(){
     else
         GROUP="*"
     fi
-  
+    #priprava directory
     FILE_DIR="$(readlink -f $FILE_DIR)"
+    #samotny filtr
     LIST="$( awk -v AFTER="$TIME_AFTER" -v BEFORE="$TIME_BEFORE" -v testHome="^$FILE_DIR/[^/]*$" '$2 > AFTER && $2 <= BEFORE { if ($1 ~ testHome) {print $1 " " $4}}' "$MOLE_RC" \
         | uniq -c \
         | awk '{print $2 " " $3}'  \
@@ -41,12 +42,11 @@ list_function(){
         | column -t | sort \
         | awk '{print $0}'
         ) "
-
+    #tisk vysledku, pokud tam neco je
     if [ "$LIST" != " " ]
     then
         echo "$LIST"      
     fi
-
 }
 # secret-log
 secret_log_function(){
