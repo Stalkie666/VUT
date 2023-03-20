@@ -1,7 +1,7 @@
 // steg-decode.c
-   // Řešení IJC-DU1, příklad b), 22.3.2023
+   // Řešení IJC-DU1, příklad b), 20.3.2023
    // Autor: Jakub Hamadej, FIT
-   // Přeloženo: gcc 9.4.0
+   // Přeloženo: gcc 11.3.0
 
 #include <stdio.h>
 #include <limits.h>
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]){
 
    bitset_free(maskArray);
    ppm_free(img);
-
+   //check if super-duper secret message was ended by '\0'
    if( !isMsgEnded ){
       error_exit("Skryta zprava je prilis dlouha nebo je neukoncena terminacni nulou.\n");
    }

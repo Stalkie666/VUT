@@ -1,14 +1,14 @@
 // prime.c
-   // Řešení IJC-DU1, příklad a), 22.3.2023
+   // Řešení IJC-DU1, příklad a), 20.3.2023
    // Autor: Jakub Hamadej, FIT
-   // Přeloženo: gcc 9.4.0
+   // Přeloženo: gcc 11.3.0
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "eratosthenes.h"
 
-#define ARRAY_SIZE 200UL
+#define ARRAY_SIZE 230000000UL
 #define NUMBERS_TO_PRINT 10
 
 /**

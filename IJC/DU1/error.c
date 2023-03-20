@@ -1,7 +1,7 @@
 // error.c
-   // Řešení IJC-DU1, příklad b), 22.3.2023
+   // Řešení IJC-DU1, příklad b), 20.3.2023
    // Autor: Jakub Hamadej, FIT
-   // Přeloženo: gcc 9.4.0
+   // Přeloženo: gcc 11.3.0
 
 #include <stdio.h>
 #include <stdlib.h>

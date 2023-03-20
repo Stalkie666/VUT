@@ -1,7 +1,7 @@
 // bitset.h
-   // Řešení IJC-DU1, příklad a), 22.3.2023
+   // Řešení IJC-DU1, příklad a), 20.3.2023
    // Autor: Jakub Hamadej, FIT
-   // Přeloženo: gcc 9.4.0
+   // Přeloženo: gcc 11.3.0
 
 #include <assert.h>
 #include <limits.h>
