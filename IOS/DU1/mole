@@ -19,7 +19,28 @@ error_func(){
 }
 # list
 list_function(){
-    echo "list function TO-DO"
+    #uprava group
+    if [ "$GROUP" != "-" ]
+    then
+        GROUP="$GROUP$"
+        GROUP="${GROUP//,/$|}"
+    else
+        GROUP="*"
+    fi
+  
+    FILE_DIR="$(readlink -f $FILE_DIR)"
+    LIST="$( awk -v AFTER="$TIME_AFTER" -v BEFORE="$TIME_BEFORE" -v testHome="^$FILE_DIR/[^/]*$" '$2 > AFTER && $2 <= BEFORE { if ($1 ~ testHome) {print $1 " " $4}}' "$MOLE_RC" \
+        | uniq -c \
+        | awk '{print $2 " " $3}'  \
+        | grep -E "$GROUP"  \
+        | awk -v OFS=',' '{x=$1;$1="";a[x]=a[x]$0}END{for(x in a)print x,a[x]}' \
+        | awk -F',,' '{print $1 " " $2}' \
+        | sed 's/-,//g' \
+        | awk '{split($1, a, "/"); print a[length(a)], $2}' \
+        | awk '{print $1 ": " $2}' \
+        | column -t | sort \
+        ) "
+echo "$LIST"
 }
 # secret-log
 secret_log_function(){
@@ -174,10 +195,10 @@ then
     exit 1
 fi 
 
+
 # cast list
 if [  "$bool_LIST" = true  ]
 then
-    echo "List"
     list_function
     exit 0
 fi
