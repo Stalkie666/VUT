@@ -1,15 +1,42 @@
 #!/bin/bash
 
+#*****************************************************************#
+#* * *                   Projekt 1 - shell                   * * *#
+#* * *                                                       * * *#
+#* * *                  Jméno: Jakub Hamadej                 * * *#
+#* * *                                                       * * *#
+#* * *                   Login: xhamad03                     * * *#
+#* * *                                                       * * *#
+#* * *                    Předmět: IOS                       * * *#
+#* * *                                                       * * *#
+#* * *                  Datum: 22.03.2023                    * * *#
+#*****************************************************************#
 
 
 # cast -h
 print_help(){
+    echo "Účelem programu je zlepšení editace souborů pro naši super tajnou organizaci"
     echo "Napoveda:"
     echo "      -h \ --help:"
     echo "                  zobrazi napovedu"
-    echo "      [-g Group] FILE"
-    echo "      [-m] [FILTERS] [DIRECTORY]"
-    echo "      list [FILTERS] [DIRECTORY]"
+    echo "      mole [-g Group] FILE"
+    echo "                  základní otevření souboru peo editaci, jak nového tak existujícího"
+    echo "                  přepínač g navíc přiřadí soubor k vybrané skupině (nové nebo existující)"
+    echo "      mole [-m] [FILTERS] [DIRECTORY]"
+    echo "                  znovuotevře naposledy otevřený soubor pokud existuje, jinak otevře takový"
+    echo "                  který nebyl smazán (pokud nějaký takový je)"
+    echo "                  přepínač m změní toto chování na nejčastěji otevíraný soubor"
+    echo "                  FILTERS představují přepínače -a, -b, -g"
+    echo "                  přepínače -a DATE, -b DATE nastavují časový úsek, DATE je ve formatu YYYY-MM-DD"
+    echo "                  -a značí po daném datu např.: DATE=2023-03-15 tak první výsledek bude s datem 16.3.2023"
+    echo "                  -b značí před daných datem s podobným chováním jako -a"
+    echo "                  přepínač -g GROUP pak filtruje pouze určitou zvolenou skupinu např.: GROUP=abc"
+    echo "      mole list [FILTERS] [DIRECTORY]"
+    echo "                  vypíše seznam editovaných souborů v určitém adresáři, pokud není zadáno DIRECTORY, vypíše"
+    echo "                  seznam z aktuálního adresáře kde se zrovna nachází"
+    echo "                  FILTERS fungují stajně jako pro znovuotevření s tím rozdílem, že filtr GROUP je schopen"
+    echo "                  pojmout a zpracovat více skupin oddělených čárkou např.: GROUP=abc,efg,..."
+    echo "      další informace o funkcích nejsou známy a rozhodně nejsou přísně tajné jako naše celá organizace"
     exit 0
 }
 
@@ -55,11 +82,15 @@ secret_log_function(){
     jmeno="log_$USER$datum.bz2"
     # FILE_DIR prijde ve formatu dir1,dir2,dir3,... pote bude upravena
     DIRECTIONS="$FILE_DIR"
+    if [ "$DIRECTIONS" = "" ]
+    then
+        DIRECTIONS=""
+    else
+        DIRECTIONS="^$DIRECTIONS/[^/]*$"
+        DIRECTIONS="${DIRECTIONS//,/\/[^/]*$|^}"
+    fi
 
-    DIRECTIONS="^$DIRECTIONS/[^/]*$"
-    DIRECTIONS="${DIRECTIONS//,/\/[^/]*$|^}"
-
-    SECRET="$( awk  -v AFTER="$TIME_AFTER" -v BEFORE="$TIME_BEFORE" -v directories="$DIRECTIONS" ' $2 > AFTER && $2 < BEFORE { if($1 ~ directories) {print $1 " " $2 "_" $3} } ' "$MOLE_RC" \
+    SECRET="$( awk  -v AFTER="$TIME_AFTER" -v BEFORE="$TIME_BEFORE" -v directories="$DIRECTIONS" ' $2 > AFTER && $2 < BEFORE { if($1 ~ directories || directories == "") {print $1 " " $2 "_" $3} } ' "$MOLE_RC" \
             | awk -v OFS=',' '{x=$1;$1="";a[x]=a[x]$0}END{for(x in a)print x,a[x]}' \
             | awk -F',,' '{print $1 ";" $2}' \
             | sed 's/,/;/g' \
@@ -151,7 +182,7 @@ open_in_editor_function(){
     fi
 }
 
-POSIXLY_CORRECT=yes
+export POSIXLY_CORRECT=yes
 
 GROUP="-"
 FILE_DIR=$PWD
@@ -225,7 +256,6 @@ else
     #vytvoreni $MOLE_RC pokud jeste neni
     if [ ! -e "$MOLE_RC" ]
     then
-        echo "tvorim mole_rc"
         mkdir -p "$(dirname "$MOLE_RC")" && touch $MOLE_RC
     fi
 fi
@@ -248,7 +278,6 @@ fi
 # cast secret-log
 if [  "$bool_SECRED_LOG" = true ]
 then
-    echo "Secret log"
     secret_log_function
     exit 0
 fi
