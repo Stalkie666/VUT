@@ -66,6 +66,10 @@ secret_log_function(){
             )"
 
     #test jestli slozka existuje, pokud ne tak vytvorit
+    if [ ! -d "$slozka" ]
+    then
+        mkdir -p "$slozka"
+    fi
 
     echo "$SECRET" | bzip2 > $slozka/$jmeno
 }
@@ -188,14 +192,24 @@ while [ "$#" -gt 0 ]; do
             ;;
         secret-log)
             bool_SECRED_LOG=true
+            FILE_DIR=""
             shift
             ;;
         *)
-            if [ $# -gt 1 ]
+            if [  "$bool_SECRED_LOG" = true ]
+            then
+                if [ "$FILE_DIR" = "" ]
+                then
+                    FILE_DIR="$(realpath $1)"
+                else
+                    FILE_DIR="$FILE_DIR,$(realpath $1)"
+                fi
+            elif [ $# -gt 1 ]
             then
                 error_func
+            else
+                FILE_DIR=$1
             fi
-            FILE_DIR=$1
             shift       
             ;;
     esac
