@@ -50,7 +50,24 @@ list_function(){
 }
 # secret-log
 secret_log_function(){
-    echo "secret-log function TO-DO"
+    slozka="/home/$USER/.mole"
+    datum="_$(date +'%Y-%m-%d_%H-%M-%S')"
+    jmeno="log_$USER$datum.bz2"
+    # FILE_DIR prijde ve formatu dir1,dir2,dir3,... pote bude upravena
+    DIRECTIONS="$FILE_DIR"
+
+    DIRECTIONS="^$DIRECTIONS/[^/]*$"
+    DIRECTIONS="${DIRECTIONS//,/\/[^/]*$|^}"
+
+    SECRET="$( awk  -v AFTER="$TIME_AFTER" -v BEFORE="$TIME_BEFORE" -v directories="$DIRECTIONS" ' $2 > AFTER && $2 < BEFORE { if($1 ~ directories) {print $1 " " $2 "_" $3} } ' "$MOLE_RC" \
+            | awk -v OFS=',' '{x=$1;$1="";a[x]=a[x]$0}END{for(x in a)print x,a[x]}' \
+            | awk -F',,' '{print $1 ";" $2}' \
+            | sed 's/,/;/g' \
+            )"
+
+    #test jestli slozka existuje, pokud ne tak vytvorit
+
+    echo "$SECRET" | bzip2 > $slozka/$jmeno
 }
 
 
