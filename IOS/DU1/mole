@@ -75,6 +75,7 @@ secret_log_function(){
 # re-open file
 re_open_file_function(){
     #uprava group
+    tmpGROUP="$GROUP"
     GROUP="$GROUP$"
     GROUP="${GROUP//,/$|}"
     # nejprve zpracovat mozne kandidaty, casove + jestli vubec existuji
@@ -104,6 +105,8 @@ re_open_file_function(){
     else
         REAL_PATH="$(echo "$SOUBORY" | tail -1)"
     fi
+    #nastavit zpet grupu
+    GROUP="$tmpGROUP"
     open_in_editor_function
 }
 
@@ -120,17 +123,19 @@ open_file_function(){
     then
         mkdir -p "$(dirname "$FILE_DIR")" && touch "$FILE_DIR"
     fi
-    #zprava pro log
-    REAL_PATH="$(realpath $FILE_DIR)"
-    REAL_DATE="$(date '+%Y-%m-%d %H-%M-%S')"
-    echo "$REAL_PATH $REAL_DATE $GROUP" >> $MOLE_RC
+    
     # otevrit soubor
+    REAL_PATH="$(realpath $FILE_DIR)"
     open_in_editor_function
     
 }
 
 # otevre soubor v zadanem editoru
 open_in_editor_function(){
+    #zprava pro log
+    REAL_DATE="$(date '+%Y-%m-%d %H-%M-%S')"
+    echo "$REAL_PATH $REAL_DATE $GROUP" >> $MOLE_RC
+    #samotne otevreni
     if [[ -v EDITOR ]]
     then
         $EDITOR $REAL_PATH
