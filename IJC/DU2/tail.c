@@ -74,7 +74,7 @@ int readFromFile(int allocSize, char * fileName){
     }
     if( !readStream(stream,allocSize) ){
         fclose(stream);
-        return 0
+        return 0;
     }
     else{
         fclose(stream);
