@@ -17,10 +17,10 @@ typedef struct CB_Struct{
 CB_Struct_t * cb_create(int n){
     CB_Struct_t * returnStruct = malloc(sizeof(CB_Struct_t));
     if( returnStruct == NULL ) return NULL;
-    returnStruct->lines = malloc(n*sizeof(singleLine));
+    returnStruct->lines = malloc(n*sizeof(singleLine_t));
     if(returnStruct->lines == NULL){
         free(returnStruct);
-        return NULL
+        return NULL;
     }
     returnStruct->size = n;
     returnStruct->readIndex = 0;
