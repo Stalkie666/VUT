@@ -103,10 +103,10 @@ int main(int argc, char *argv[]){
     }
 
     if( fileName == NULL ){
-        //zde zavolat funkci pro cteni ze stdin
+        readStdIn(CB_allocSize);
     }
     else{
-        //zde funkce pro cteni ze souboru
+        readFromFile(CB_allocSize,fileName);
     }
 
     return EXIT_SUCCESS;
