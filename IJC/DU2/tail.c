@@ -33,10 +33,14 @@ CB_Struct_t * cb_create(int n){
 }
 
 void cb_put(CB_Struct_t * cb, char * line){
+    if( (cb->writeIndex == cb->readIndex) ){
+        cb->readIndex = (cb->readIndex + 1) % cb->size;
+    }
     if(cb->lines[cb->writeIndex].line != NULL){
         free(cb->lines[cb->writeIndex].line);
     }
     cb->lines[cb->writeIndex++].line = line; 
+    cb->writeIndex %= cb->size;
 }
 
 char * cb_get(CB_Struct_t * cb){
@@ -46,7 +50,11 @@ char * cb_get(CB_Struct_t * cb){
 }
 
 void cb_free(CB_Struct_t * cb){
-    //mozna jeste uvolnovat samotne line
+    for(size_t i = 0; i < cb->size; ++i){
+        if( cb->lines[i].line != NULL ){
+            free(cb->lines[i].line);
+        }
+    }
     free(cb->lines);
     free(cb);
 }
@@ -54,9 +62,21 @@ void cb_free(CB_Struct_t * cb){
 //read from stream
 int readStream(FILE * stream, int allocSize){
     CB_Struct_t * cb = cb_create(allocSize);
-    /*
-        zde kod pro zpracovani vstupu
-    */
+    while( !feof(stream) ){
+        char * line = NULL;
+        size_t len = 0;
+        size_t realLineSize = getline(&line,&len,stream);
+        if( realLineSize != -1 ){
+            cb_put(cb,line);
+        }
+        else{
+            if(len > 0) free(line);
+        }
+    }
+    for(size_t i = 0; i < cb->size; ++i){
+        char * testLine = cb_get(cb);
+        printf("%s", testLine);
+    }
     cb_free(cb);
     return 1;
 }
@@ -90,12 +110,17 @@ int main(int argc, char *argv[]){
     int CB_allocSize = 10;
     char * fileName = NULL;
     for(size_t i = 1; i < argc; ++i){
-        if( strcmp(argv[i],"-n") && (i+1) < argc ){
+        if( !strcmp(argv[i],"-n") ){
+            if( i+1 >= argc ){
+                fprintf(stderr,"Chyby cislo pro argument -n\n");
+                return EXIT_FAILURE;
+            }
             CB_allocSize = atoi(argv[i+1]);
             if( CB_allocSize <= 0 ){
                 fprintf(stderr,"Zadana nespravna velikost CB, nebo uplny nesmysl.\n");
                 return EXIT_FAILURE;
             }
+            ++i;
         }
         else{
             fileName = argv[i];
