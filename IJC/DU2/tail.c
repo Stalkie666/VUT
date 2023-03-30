@@ -65,9 +65,15 @@ int readStream(FILE * stream, int allocSize){
     while( !feof(stream) ){
         char * line = NULL;
         size_t len = 0;
-        size_t realLineSize = getline(&line,&len,stream);
-        if( realLineSize != -1 ){
+        int realLineSize = getline(&line,&len,stream);
+        if( realLineSize != -1  && realLineSize < LINE_LIMIT){
             cb_put(cb,line);
+        }
+        else if( realLineSize >= LINE_LIMIT ){
+            if(len > 0) free(line);
+            cb_free(cb);
+            fprintf(stderr,"Prilis dlouhy radek (vice nez %d znaku), program ukoncen.\n",LINE_LIMIT);
+            return 1;
         }
         else{
             if(len > 0) free(line);
@@ -75,7 +81,8 @@ int readStream(FILE * stream, int allocSize){
     }
     for(size_t i = 0; i < cb->size; ++i){
         char * testLine = cb_get(cb);
-        printf("%s", testLine);
+        if( testLine != NULL )
+            printf("%s", testLine);
     }
     cb_free(cb);
     return 1;
