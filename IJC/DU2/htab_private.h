@@ -12,7 +12,7 @@ typedef struct htab_item{
 struct htab{
     int size;
     int arr_size;
-    htab_item_t ** items;
+    htab_item_t ** arr_ptr;
 };
 
 htab_item_t * htab_init_item();
