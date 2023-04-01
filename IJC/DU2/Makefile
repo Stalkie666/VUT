@@ -7,4 +7,4 @@ tail: tail.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 clean:
-	rm -f tail
+	rm -f tail *.o
