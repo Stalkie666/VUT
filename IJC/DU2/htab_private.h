@@ -15,7 +15,7 @@ struct htab{
     htab_item_t ** arr_ptr;
 };
 
-htab_item_t * htab_init_item();
+htab_item_t * htab_init_item(htab_key_t key);
 
 void htab_free_item(htab_item_t * item);
 
