@@ -2,6 +2,8 @@
 #include "htab_private.h"
 
 htab_t *htab_init(const size_t n){
+    if(n == 0)
+        return NULL;
     htab_t * retVal = malloc( sizeof(htab_t) );
     if( retVal == NULL ){
         return NULL;
@@ -13,7 +15,7 @@ htab_t *htab_init(const size_t n){
     }
     retVal->size = 0;
     retVal->arr_size = n;
-    for(int i = 0; i < n; ++i){
+    for(size_t i = 0; i < n; ++i){
         retVal->arr_ptr[i] = NULL;
     }
     return retVal;
