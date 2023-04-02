@@ -15,8 +15,8 @@ htab_item_t * htab_init_item(htab_key_t key){
 
     // strcpy((char*)retVal->pair.key, key);
     retVal->pair.key = key;
-    
-    retVal->pair.value = 1;
+
+    retVal->pair.value = 0;
     retVal->next = NULL;
     return retVal;
 }
