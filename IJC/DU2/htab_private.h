@@ -10,8 +10,8 @@ typedef struct htab_item{
 }htab_item_t;
 
 struct htab{
-    int size;
-    int arr_size;
+    size_t size;
+    size_t arr_size;
     htab_item_t ** arr_ptr;
 };
 
