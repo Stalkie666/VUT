@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "htab.h"
-#include "read_word.h"
+#include "io.h"
 
 #define HTAB_SIZE 256
 #define MAX_WORD_LEN 256
