@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "read_word.h"
+#include "io.h"
 
 int readRestOfWord(FILE * stream){
     int retVal = 0;

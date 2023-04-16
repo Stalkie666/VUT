@@ -1,3 +1,4 @@
+#define  _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -116,7 +117,7 @@ int main(int argc, char *argv[]){
         fprintf(stderr,"Prilis mnoho argumentu.\n");
     int CB_allocSize = 10;
     char * fileName = NULL;
-    for(size_t i = 1; i < argc; ++i){
+    for(int i = 1; i < argc; ++i){
         if( !strcmp(argv[i],"-n") ){
             if( i+1 >= argc ){
                 fprintf(stderr,"Chyby cislo pro argument -n\n");
