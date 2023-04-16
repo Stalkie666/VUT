@@ -1,17 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "read_word.h"
 
 int readRestOfWord(FILE * stream){
     int retVal = 0;
     int c;
-    while( (c=fgec(f)) != EOF ){
+    while( (c=fgetc(stream)) != EOF ){
         if(isspace(c)){
-            return i;
+            return retVal;
         }
-        ++i;
+        ++retVal;
     }
-    return i;
+    return retVal;
 }
 
 int read_word(char *s, int max, FILE *f){
@@ -32,7 +33,7 @@ int read_word(char *s, int max, FILE *f){
 
     }
 
-    str[index] = '\0';
+    s[index] = '\0';
 
     if( (index==0) && (c == EOF) ){
         return EOF;
