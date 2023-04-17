@@ -6,28 +6,36 @@
 #define HTAB_SIZE 256
 #define MAX_WORD_LEN 256
 
+/**
+ * print key and value for given Pair
+*/
 void printGivenPair(htab_pair_t *mi){
     printf("%s\t%d\n",mi->key,mi->value);
 }
 
 int main(){
+    // init map and check it
     htab_t *m = htab_init(HTAB_SIZE);
     if(m == NULL){
         fprintf(stderr,"Allocation of memory failed.\n");
         return EXIT_FAILURE;
     }
 
-    bool longWarned = false;
-    int len;
+    // checker for first longer word
+    bool isLonger = false;
+    // length of word which was loaded
+    int realLen;
+    // word buffer
     char word[MAX_WORD_LEN];
-
-    while( (len = read_word(word,MAX_WORD_LEN,stdin)) != EOF ){
-        if( (len >= MAX_WORD_LEN - 1) && !longWarned ){
+    // read words until EOF
+    while( (realLen = read_word(word,MAX_WORD_LEN,stdin)) != EOF ){
+        // check length and if it has been already longer word
+        if( (realLen >= MAX_WORD_LEN - 1) && !isLonger ){
             fprintf( stderr, "Word is longer than %d and was shorten.\n", MAX_WORD_LEN );
-            longWarned = true;
+            isLonger = true;
         }
-
-        htab_pair_t *pair =htab_lookup_add(m,word);
+        // get pointer on pair from map by given word and check it if success
+        htab_pair_t *pair = htab_lookup_add(m,word);
         if(pair == NULL){
             fprintf(stderr,"Allocation of memory failed.\n");
             htab_free(m);
@@ -35,9 +43,10 @@ int main(){
         }
         pair->value++;
     }
-
+    // print all pair of keys and their values
     htab_for_each(m,printGivenPair);
 
+    // free unordered map
     htab_free(m);
 
     return EXIT_SUCCESS;

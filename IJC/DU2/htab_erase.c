@@ -1,26 +1,13 @@
 #include "htab_private.h"
 
-// bool htab_erase(htab_t * t, htab_key_t key){
-//     size_t index = htab_hash_function(key) % t->arr_size;
-
-//     for( htab_item_t * item = t->arr_ptr[index]; item != NULL; item = item->next  ){
-//         if( !strcmp( item->pair.key, key ) ){
-//             htab_item_t * forErase = item;
-//             item = forErase->next;
-//             htab_free_item(forErase);
-//             t->size--;
-//             return true;
-//         }
-//     }
-
-
-//     return false;
-// }
-
+/**
+ * @return true if erase of pair was successfull, false if pair was not found
+*/
 bool htab_erase(htab_t * t, htab_key_t key){
     //get index for pair
     size_t index = htab_hash_function(key) % t->arr_size;
 
+    // make temporaly variables and init it
     htab_item_t * current = t->arr_ptr[index];
     htab_item_t * previous = NULL;
 

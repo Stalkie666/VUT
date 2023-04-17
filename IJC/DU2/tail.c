@@ -4,26 +4,33 @@
 #include <string.h>
 
 #define LINE_LIMIT 4096 // 4095 printable chars + '\0'
+#define BASE_ROW_LIMIT 10
 
 typedef struct singleLine{
     char * line;
 }singleLine_t;
 
 typedef struct CB_Struct{
-    size_t size;
-    size_t readIndex;
-    size_t writeIndex;
-    singleLine_t * lines;
+    size_t size;            //size of array
+    size_t readIndex;       //index on next line for read
+    size_t writeIndex;      //index on next line for write
+    singleLine_t * lines;   //array of lines
 }CB_Struct_t;
 
+/**
+ * @return pointer for structure if success, NULL if not
+*/
 CB_Struct_t * cb_create(int n){
+    // alloc structure and check if succesfully
     CB_Struct_t * returnStruct = malloc(sizeof(CB_Struct_t));
     if( returnStruct == NULL ) return NULL;
+    // alloc array of lines and check if succesfully
     returnStruct->lines = malloc(n*sizeof(singleLine_t));
     if(returnStruct->lines == NULL){
         free(returnStruct);
         return NULL;
     }
+    //init variables in structure and return
     returnStruct->size = n;
     returnStruct->readIndex = 0;
     returnStruct->writeIndex = 0;
@@ -33,58 +40,86 @@ CB_Struct_t * cb_create(int n){
     return returnStruct;
 }
 
+/**
+ * add new line into array
+*/
 void cb_put(CB_Struct_t * cb, char * line){
+    // move readIndex if nessessary
     if( (cb->writeIndex == cb->readIndex) ){
         cb->readIndex = (cb->readIndex + 1) % cb->size;
     }
+    // if writeIndex is occupied, remove line correctly
     if(cb->lines[cb->writeIndex].line != NULL){
         free(cb->lines[cb->writeIndex].line);
     }
-    cb->lines[cb->writeIndex++].line = line; 
+    // set new line
+    cb->lines[cb->writeIndex++].line = line;
+    // correct write index if nessessary
     cb->writeIndex %= cb->size;
 }
 
+/**
+ * @return line of array on which readIndex is pointing 
+*/
 char * cb_get(CB_Struct_t * cb){
     char * retVal = cb->lines[cb->readIndex++].line;
     cb->readIndex %= cb->size;
     return retVal;
 }
 
+/**
+ * free structure
+*/
 void cb_free(CB_Struct_t * cb){
+    // free array of lines if it is needed
     for(size_t i = 0; i < cb->size; ++i){
         if( cb->lines[i].line != NULL ){
             free(cb->lines[i].line);
         }
     }
+    // free array and structure
     free(cb->lines);
     free(cb);
 }
 
 //read from stream
 int readStream(FILE * stream, int allocSize){
+    // alloc structure
     CB_Struct_t * cb = cb_create(allocSize);
+    // read stream until EOF
     while( !feof(stream) ){
         char * line = NULL;
         size_t len = 0;
         int realLineSize = getline(&line,&len,stream);
+        // check if line is loaded and if length is under limit
         if( realLineSize != -1  && realLineSize < LINE_LIMIT){
+            // put line into array
             cb_put(cb,line);
         }
+        // check if line is over limit
         else if( realLineSize >= LINE_LIMIT ){
+            // if needed, free memory of line
             if(len > 0) free(line);
+            // free structure
             cb_free(cb);
+            // print error message
             fprintf(stderr,"Prilis dlouhy radek (vice nez %d znaku), program ukoncen.\n",LINE_LIMIT);
             return 1;
         }
+        // if line is empty
         else{
+            // if nessesary free line
             if(len > 0) free(line);
         }
     }
+    // print last n lines given by arguments
     for(size_t i = 0; i < cb->size; ++i){
         char * testLine = cb_get(cb);
+        // check if line is not empty
         if( testLine != NULL )
             printf("%s", testLine);
     }
+    // free structure
     cb_free(cb);
     return 1;
 }
@@ -95,11 +130,13 @@ int readStdIn(int allocSize){
 }
 //read file mode
 int readFromFile(int allocSize, char * fileName){
+    //try to open file and check
     FILE * stream = fopen(fileName,"r");
     if(!stream){
         fprintf(stderr,"Otevreni souboru selhalo.\n");
         return 0;
     }
+    // read stream and return if successfuly or not
     if( !readStream(stream,allocSize) ){
         fclose(stream);
         return 0;
@@ -113,16 +150,25 @@ int readFromFile(int allocSize, char * fileName){
 
 
 int main(int argc, char *argv[]){
-    if(argc > 4)
+    // check number of arguments
+    if(argc > 4){
+        // print error message
         fprintf(stderr,"Prilis mnoho argumentu.\n");
-    int CB_allocSize = 10;
+        return EXIT_FAILURE;
+    }
+    // set variables
+    int CB_allocSize = BASE_ROW_LIMIT;
     char * fileName = NULL;
+    // processing of given arguments
     for(int i = 1; i < argc; ++i){
+        // for number of rows to print
         if( !strcmp(argv[i],"-n") ){
+            // check if after '-n' is argument
             if( i+1 >= argc ){
                 fprintf(stderr,"Chyby cislo pro argument -n\n");
                 return EXIT_FAILURE;
             }
+            // convers argument into number
             CB_allocSize = atoi(argv[i+1]);
             if( CB_allocSize <= 0 ){
                 fprintf(stderr,"Zadana nespravna velikost CB, nebo uplny nesmysl.\n");
@@ -130,15 +176,19 @@ int main(int argc, char *argv[]){
             }
             ++i;
         }
+        // for fileName
         else{
             fileName = argv[i];
         }
     }
 
+    // check if fileName was given
     if( fileName == NULL ){
+        // read input from stdin
         readStdIn(CB_allocSize);
     }
     else{
+        // read input from file
         readFromFile(CB_allocSize,fileName);
     }
 
