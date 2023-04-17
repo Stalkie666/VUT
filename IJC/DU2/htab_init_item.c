@@ -1,3 +1,8 @@
+// htab_init_item.c
+   // Řešení IJC-DU1, příklad b), 17.4.2023
+   // Autor: Jakub Hamadej, FIT
+   // Přeloženo: gcc 11.3.0
+
 #include <stdlib.h>
 #include "htab_private.h"
 

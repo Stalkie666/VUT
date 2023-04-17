@@ -1,5 +1,11 @@
+# Makefile
+#  // Řešení IJC-DU1, příklad a+b), 17.4.2023
+#  // Autor: Jakub Hamadej, FIT
+#  // Přeloženo: Je to Makefile, nepreklada se
+
 CC=gcc
 CFLAGS=-std=c11 -pedantic -Wall -Wextra
+XLOGIN=xhamad03
 
 default: tail wordcount wordcount-dynamic libhtab.so
 
@@ -87,7 +93,8 @@ dyn-htab_size.o: htab_size.c htab_private.h
 dyn-htab_statistics.o: htab_statistics.c htab_private.h
 	$(CC) $(CFLAGS) -c -fPIC $< -o $@
 
-
+zip:
+	zip $(XLOGIN).zip *.c *.h *.cc Makefile
 
 clean:
-	rm -f tail *.o libhtab.a libhtab.so wordcount wordcount- wordcount-dynamic
+	rm -f tail *.o libhtab.a libhtab.so wordcount wordcount- wordcount-dynamic $(XLOGIN).zip

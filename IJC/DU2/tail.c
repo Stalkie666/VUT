@@ -1,3 +1,8 @@
+// tail.c
+   // Řešení IJC-DU1, příklad a), 17.4.2023
+   // Autor: Jakub Hamadej, FIT
+   // Přeloženo: gcc 11.3.0
+   
 #define  _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>

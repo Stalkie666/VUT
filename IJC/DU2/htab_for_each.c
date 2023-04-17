@@ -1,4 +1,10 @@
+// htab_for_each.c
+   // Řešení IJC-DU1, příklad b), 17.4.2023
+   // Autor: Jakub Hamadej, FIT
+   // Přeloženo: gcc 11.3.0
+
 #include "htab_private.h"
+
 /**
  * use choosen function for each pair in map
 */
