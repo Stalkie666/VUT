@@ -9,6 +9,9 @@ XLOGIN=xhamad03
 
 default: tail wordcount wordcount-dynamic libhtab.so
 
+run:
+	echo "Nebylo specifikovano co"
+
 tail: tail.c
 	$(CC) $(CFLAGS) $^ -o $@
 
