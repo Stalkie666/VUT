@@ -4,7 +4,7 @@
 #  // Přeloženo: Je to Makefile, nepreklada se
 
 CC=gcc
-CFLAGS=-std=c11 -pedantic -Wall -Wextra
+CFLAGS=-std=c11 -pedantic -Wall -Wextra -g
 XLOGIN=xhamad03
 
 default: tail wordcount wordcount-dynamic libhtab.so
