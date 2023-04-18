@@ -91,25 +91,34 @@ void cb_free(CB_Struct_t * cb){
 int readStream(FILE * stream, int allocSize){
     // alloc structure
     CB_Struct_t * cb = cb_create(allocSize);
+    //check first line over size
+    int overSizeLine = 0;
+
+    char * line = NULL;
+    size_t len = 0;
     // read stream until EOF
     while( !feof(stream) ){
-        char * line = NULL;
-        size_t len = 0;
+        line = NULL;
+        len = 0;
         int realLineSize = getline(&line,&len,stream);
         // check if line is loaded and if length is under limit
         if( realLineSize != -1  && realLineSize < LINE_LIMIT){
+            if(line[realLineSize-1] == '\n') 
+                line[realLineSize-1] = '\0';
             // put line into array
             cb_put(cb,line);
         }
         // check if line is over limit
         else if( realLineSize >= LINE_LIMIT ){
-            // if needed, free memory of line
-            if(len > 0) free(line);
-            // free structure
-            cb_free(cb);
+            //shorter line
+            line[LINE_LIMIT-1] = '\0';
             // print error message
-            fprintf(stderr,"Prilis dlouhy radek (vice nez %d znaku), program ukoncen.\n",LINE_LIMIT);
-            return 1;
+            if(overSizeLine == 0){
+                overSizeLine = 1;
+                fprintf(stderr,"Prilis dlouhy radek (vice nez %d znaku), radek zkracen.\n",LINE_LIMIT);
+            }
+            // put line into array
+            cb_put(cb,line);
         }
         // if line is empty
         else{
@@ -122,7 +131,7 @@ int readStream(FILE * stream, int allocSize){
         char * testLine = cb_get(cb);
         // check if line is not empty
         if( testLine != NULL )
-            printf("%s", testLine);
+            printf("%s\n", testLine);
     }
     // free structure
     cb_free(cb);
@@ -190,11 +199,13 @@ int main(int argc, char *argv[]){
     // check if fileName was given
     if( fileName == NULL ){
         // read input from stdin
-        readStdIn(CB_allocSize);
+        if( readStdIn(CB_allocSize) == 0 )
+            return EXIT_FAILURE;
     }
     else{
         // read input from file
-        readFromFile(CB_allocSize,fileName);
+        if( readFromFile(CB_allocSize,fileName) == 0 )
+            return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

@@ -7,10 +7,10 @@ CC=gcc
 CFLAGS=-std=c11 -pedantic -Wall -Wextra -g
 XLOGIN=xhamad03
 
-default: tail wordcount wordcount-dynamic libhtab.so
+default: tail wordcount wordcount-dynamic libhtab.so wordcount-
 
 run:
-	echo "Nebylo specifikovano co"
+	./tests/testIJC2.sh
 
 tail: tail.c
 	$(CC) $(CFLAGS) $^ -o $@
