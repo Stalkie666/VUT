@@ -9,7 +9,7 @@ XLOGIN=xhamad03
 
 default: tail wordcount wordcount-dynamic libhtab.so wordcount-
 
-run:
+run: tail wordcount wordcount-dynamic libhtab.so wordcount-
 	./tests/testIJC2.sh
 
 tail: tail.c
@@ -97,7 +97,7 @@ dyn-htab_statistics.o: htab_statistics.c htab_private.h
 	$(CC) $(CFLAGS) -c -fPIC $< -o $@
 
 zip:
-	zip $(XLOGIN).zip *.c *.h *.cc Makefile
+	zip -r $(XLOGIN).zip *.c *.h *.cc Makefile tests/
 
 clean:
 	rm -f tail *.o libhtab.a libhtab.so wordcount wordcount- wordcount-dynamic $(XLOGIN).zip
