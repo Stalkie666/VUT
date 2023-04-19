@@ -31,6 +31,8 @@ architecture behavioral of UART_RX is
     signal endBit : std_logic := '0'; -- vystup z shift registru do DOUT_VLD skrz and spolecne s qcnt10
     --vnitrni signaly jednotlivych procesu
     signal count15 : std_logic_vector (3 downto 0) := "0000";
+    signal reg9 : std_logic_vector(8 downto 0) := "000000000";
+    signal count10 : std_logic_vector(3 downto 0) := "0000";
 begin
 
     -- Instance of RX FSM
@@ -41,11 +43,7 @@ begin
         DIN => DIN,
         DOUT => DOUT,
         DOUT_VLD => DOUT_VLD
-
     );
-
-    DOUT <= (others => '0');
-    DOUT_VLD <= qCnt10 and endBit;
 
     -- START_BIT
     startBit: process(CLK,RST,qCnt10) begin
@@ -83,18 +81,39 @@ begin
     
     --SHIFT_REGISTER
     shiftRegister: process(cnt8,RST) begin
+        if RST = '1' then
+            reg9 <= (others => '0');
+        elsif rising_edge(cnt8) then
+            reg9 <= DIN & reg9(8 downto 1);
+        end if;
+        endBit <= reg9(8);
     end process shiftRegister;
 
     -- COUNTER10
     counter10: process(cnt15, rstStart) begin
+        if rstStart = '0' then
+            count10 <= "0000";
+            dCnt10 <= '0';
+        elsif rising_edge(cnt15) then
+            if count10 = "1001" then
+                dCnt10 <= '1';
+            else
+                dCnt10 <= '0';
+            end if;
+            count10 <= std_logic_vector( unsignef(count) + 1);
+        end if;
     end process counter10;
 
     -- DELAY
     delay: process(CLK,RST) begin
+        if RST = '1' then
+            qCnt10 <= '0';
+        elsif rising_edge(CLK) then
+            qCnt10 <= dCnt10;
+        end if;
     end process delay;
 
-    -- END_BIT_TEST
-    endBitTest: process() begin
-    end process endBitTest;
+    DOUT <= reg9(8 downto 1);
+    DOUT_VLD <= qCnt10 and endBit;
 
 end architecture;
