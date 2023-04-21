@@ -23,8 +23,8 @@ end entity;
 
 
 architecture behavioral of UART_RX_FSM is
-    type state_types is (IDLE,READ_DATA,SET_VALIDATE,END_IDLE);
-    signal STATE_TYPES : state_types := IDLE;
+    type t_state is (IDLE,READ_DATA,SET_VALIDATE,END_IDLE);
+    signal STATE_TYPES : t_state := IDLE;
     attribute fsm_encoding : string;
     attribute fsm_encoding of STATE_TYPES : signal is "sequential";
 begin
