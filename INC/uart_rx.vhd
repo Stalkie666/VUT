@@ -4,7 +4,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-
+use ieee.std_logic_arith.all;
 
 
 -- Entity declaration (DO NOT ALTER THIS PART!)
@@ -41,8 +41,10 @@ begin
         CLK => CLK,
         RST => RST,
         DIN => DIN,
-        DOUT => DOUT,
-        DOUT_VLD => DOUT_VLD
+        DOUT_VLD => DOUT_VLD,
+        DCNT10 => dCnt10,
+        QCNT10 => qcnt10,
+        RSTSTART => rstStart
     );
 
     -- START_BIT
