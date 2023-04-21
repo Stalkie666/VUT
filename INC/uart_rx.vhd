@@ -3,7 +3,6 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
 use ieee.numeric_std.all;
 
 
@@ -77,7 +76,7 @@ begin
                 cnt8 <= '0';
                 cnt15 <= '1';
             end if;
-            count15 <= std_logic_vector( unsigned(count15) + 1 );
+            count15 <= std_logic_vector(unsigned(count15) + 1);
         end if;
     end process counter15;
     
@@ -102,7 +101,7 @@ begin
             else
                 dCnt10 <= '0';
             end if;
-            count10 <= std_logic_vector( unsigned(count10) + 1);
+            count10 <= std_logic_vector(unsigned(count10) + 1);
         end if;
     end process counter10;
 
