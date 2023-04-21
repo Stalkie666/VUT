@@ -16,7 +16,7 @@ entity UART_RX_FSM is
         DOUT_VLD : out std_logic;
         DCNT10 : in std_logic;
         QCNT10 : in std_logic;
-        RSTSTART : out std_logic;
+        RSTSTART : out std_logic
     );
 end entity;
 
