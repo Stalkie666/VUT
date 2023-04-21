@@ -74,7 +74,7 @@ begin
                 cnt15 <= '1';
             else
                 cnt8 <= '0';
-                cnt15 <= '1';
+                cnt15 <= '0';
             end if;
             count15 <= std_logic_vector(unsigned(count15) + 1);
         end if;
