@@ -3,8 +3,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
+use ieee.numeric_std.all;
 
 
 -- Entity declaration (DO NOT ALTER THIS PART!)
@@ -118,4 +118,4 @@ begin
     DOUT <= reg9(8 downto 1);
     DOUT_VLD <= qCnt10 and endBit;
 
-end architecture;
+end architecture behavioral;

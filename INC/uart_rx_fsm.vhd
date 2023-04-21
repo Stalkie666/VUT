@@ -3,8 +3,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
 use ieee.std_logic_arith.all;
+use ieee.numeric_std.all;
 
 
 
@@ -25,8 +25,8 @@ end entity;
 architecture behavioral of UART_RX_FSM is
     type t_state is (IDLE,READ_DATA,SET_VALIDATE,END_IDLE);
     signal STATE_TYPES : t_state := IDLE;
-    attribute fsm_encoding : string;
-    attribute fsm_encoding of STATE_TYPES : signal is "sequential";
+    -- attribute fsm_encoding : string;
+    -- attribute fsm_encoding of STATE_TYPES : signal is "sequential";
 begin
 
     state_logic : process (CLK, RST) begin
