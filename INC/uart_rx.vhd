@@ -3,7 +3,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
+
 
 
 -- Entity declaration (DO NOT ALTER THIS PART!)
@@ -21,18 +23,11 @@ end entity;
 
 -- Architecture implementation (INSERT YOUR IMPLEMENTATION HERE)
 architecture behavioral of UART_RX is
-    --vnejsi dratovani, mozna jeste upravim
-    signal rstStart : std_logic := '0'; --vystup ze startBit
-    signal cnt15 : std_logic := '0'; -- vystup ze cnt15 pro cnt10
-    signal cnt8 : std_logic := '0'; -- vystup ze cnt15 pro shift register
-    signal dCnt10 : std_logic := '0'; -- vystup z cnt10 do delay
-    signal qCnt10 : std_logic := '0'; -- vystup z delay do rst startBit a na DOUT_VLD
-    signal endBit : std_logic := '0'; -- vystup z shift registru do DOUT_VLD skrz and spolecne s qcnt10
-    --vnitrni signaly jednotlivych procesu
-    signal count15 : std_logic_vector (3 downto 0) := "0000";
-    signal reg9 : std_logic_vector(8 downto 0) := "000000000";
-    signal count10 : std_logic_vector(3 downto 0) := "0000";
-    signal vld : std_logic;
+    signal cntTo15 : std_logic_vector(3 downto 0);
+    signal all10Bits : std_logic_vector (9 downto 0);
+    signal vld_out : std_logic;
+    signal cntTo10 : std_logic_vector(3 downto 0);
+    signal start_counting : std_logic;
 begin
 
     -- Instance of RX FSM
@@ -40,82 +35,47 @@ begin
     port map (
         CLK => CLK,
         RST => RST,
+        DOUT_VLD => vld_out,
         DIN => DIN,
-        DOUT_VLD => vld,
-        DCNT10 => dCnt10,
-        QCNT10 => qcnt10
+        CNTTO10 => cntTo10,
+        START_COUNTING => start_counting
     );
 
-    -- START_BIT
-    startBit: process(CLK,RST,qCnt10) begin
-        if RST = '1' or qCnt10 = '1' then
-            rstStart <= '0';
-        elsif rising_edge(CLK) then
-            if DIN = '1' and rstStart = '0' then
-                rstStart <= '1';
-            else
-                rstStart <= '0';
-            end if;
-        end if;
-    end process startBit;
+    --DOUT <= (others => '0');
+    DOUT_VLD <= vld_out;
 
-    -- COUNTER15
-    counter15: process(CLK, rstStart) begin
-        if rstStart = '0' then
-            count15 <= "0000";
-            cnt8 <= '0';
-            cnt15 <= '0';
+    counting15 : process(CLK,start_counting) begin
+        if start_counting = '0' then
+            cntTo15 <= "0000";
         elsif rising_edge(CLK) then
-            if count15 = "0111" then
-                cnt8 <= '1';
-                cnt15 <= '0';
-            elsif count15 = "1111" then
-                cnt8 <= '0';
-                cnt15 <= '1';
-            else
-                cnt8 <= '0';
-                cnt15 <= '0';
-            end if;
-            count15 <= std_logic_vector(unsigned(count15) + 1);
+            cntTo15 <= cntTo15 + 1;
         end if;
-    end process counter15;
-    
-    --SHIFT_REGISTER
-    shiftRegister: process(cnt8,RST) begin
+    end process counting15;
+
+    counting10 : process(CLK,start_counting) begin
+        if start_counting = '0' then 
+            cntTo10 <= "0000";
+        elsif rising_edge(CLK) and cntTo15 = "1111" then
+            cntTo10 <= cntTo10 + 1;
+        end if;
+    end process counting10;
+
+    chooseReg: process(CLK,RST,DIN) begin
         if RST = '1' then
-            reg9 <= (others => '0');
-        elsif rising_edge(cnt8) then
-            reg9 <= DIN & reg9(8 downto 1);
+            DOUT <= (others => '0');
+        elsif rising_edge(CLK) and cntTo15 = "1000" then
+            case cntTo10 is
+                when "0001" => DOUT(0) <= DIN;
+                when "0010" => DOUT(1) <= DIN;
+                when "0011" => DOUT(2) <= DIN;
+                when "0100" => DOUT(3) <= DIN;
+                when "0101" => DOUT(4) <= DIN;
+                when "0110" => DOUT(5) <= DIN;
+                when "0111" => DOUT(6) <= DIN;
+                when "1000" => DOUT(7) <= DIN;
+                when others => null;
+            end case;
         end if;
-        endBit <= reg9(8);
-    end process shiftRegister;
+    end process chooseReg;
 
-    -- COUNTER10
-    counter10: process(cnt15, rstStart) begin
-        if rstStart = '0' then
-            count10 <= "0000";
-            dCnt10 <= '0';
-        elsif rising_edge(cnt15) then
-            if count10 = "1001" then
-                dCnt10 <= '1';
-            else
-                dCnt10 <= '0';
-            end if;
-            count10 <= std_logic_vector(unsigned(count10) + 1);
-        end if;
-    end process counter10;
-
-    -- DELAY
-    delay: process(CLK,RST) begin
-        if RST = '1' then
-            qCnt10 <= '0';
-        elsif rising_edge(CLK) then
-            qCnt10 <= dCnt10;
-        end if;
-    end process delay;
-
-    DOUT <= reg9(8 downto 1);
-    --DOUT_VLD <= qCnt10 and endBit;
-    DOUT_VLD <= vld;
-
-end architecture behavioral;
+end architecture;
