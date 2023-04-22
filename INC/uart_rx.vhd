@@ -32,6 +32,7 @@ architecture behavioral of UART_RX is
     signal count15 : std_logic_vector (3 downto 0) := "0000";
     signal reg9 : std_logic_vector(8 downto 0) := "000000000";
     signal count10 : std_logic_vector(3 downto 0) := "0000";
+    signal vld : std_logic;
 begin
 
     -- Instance of RX FSM
@@ -40,10 +41,9 @@ begin
         CLK => CLK,
         RST => RST,
         DIN => DIN,
-        -- DOUT_VLD => DOUT_VLD,
+        DOUT_VLD => vld,
         DCNT10 => dCnt10,
         QCNT10 => qcnt10
-        --RSTSTART => rstStart
     );
 
     -- START_BIT
@@ -115,6 +115,7 @@ begin
     end process delay;
 
     DOUT <= reg9(8 downto 1);
-    DOUT_VLD <= qCnt10 and endBit;
+    --DOUT_VLD <= qCnt10 and endBit;
+    DOUT_VLD <= vld;
 
 end architecture behavioral;

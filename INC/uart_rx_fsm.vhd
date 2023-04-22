@@ -15,7 +15,6 @@ entity UART_RX_FSM is
         DOUT_VLD : out std_logic;
         DCNT10 : in std_logic;
         QCNT10 : in std_logic;
-        RSTSTART : out std_logic
     );
 end entity;
 
@@ -63,16 +62,12 @@ begin
         case STATE_TYPES is
             when IDLE =>
                 DOUT_VLD <= '0';
-                RSTSTART <= '0';
             when READ_DATA =>
                 DOUT_VLD <= '0';
-                RSTSTART <= '1';
             when SET_VALIDATE =>
                 DOUT_VLD <= '0';
-                RSTSTART <= '1';
             when END_IDLE =>
                 DOUT_VLD <= '1';
-                RSTSTART <= '0';
         end case;
     end process output_logic;
 
