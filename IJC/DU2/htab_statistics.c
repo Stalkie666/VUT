@@ -48,7 +48,7 @@ void htab_statistics(const htab_t * t){
         min = 0;
     }
     // print statistics
-    printf("Max: %d\n",max);
-    printf("Min: %d\n",min);
-    printf("Average: %lf\n",avg);
+    fprintf(stderr,"Max: %d\n",max);
+    fprintf(stderr,"Min: %d\n",min);
+    fprintf(stderr,"Average: %lf\n",avg);
 }
