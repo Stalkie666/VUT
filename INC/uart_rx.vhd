@@ -1,5 +1,5 @@
 -- uart_rx.vhd: UART controller - receiving (RX) side
--- Author(s): Name Surname (xlogin00)
+-- Author(s): Jakub Hamadej (xhamad03)
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -41,9 +41,9 @@ begin
         START_COUNTING => start_counting
     );
 
-    --DOUT <= (others => '0');
     DOUT_VLD <= vld_out;
 
+    -- process for counting to 8 for screen a current bit in DIN and for counting to 15 for increasing cntTo10 in process counting10
     counting15 : process(CLK,start_counting) begin
         if start_counting = '0' then
             cntTo15 <= "0000";
@@ -52,6 +52,7 @@ begin
         end if;
     end process counting15;
 
+    -- process for counting recieved bits (including startBitn and endBit)
     counting10 : process(CLK,start_counting) begin
         if start_counting = '0' then 
             cntTo10 <= "0000";
@@ -60,6 +61,7 @@ begin
         end if;
     end process counting10;
 
+    -- demultiplexor for choosing flip-flop register for DOUT
     chooseReg: process(CLK,RST,DIN) begin
         if RST = '1' then
             DOUT <= (others => '0');

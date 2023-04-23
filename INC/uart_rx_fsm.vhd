@@ -1,5 +1,5 @@
 -- uart_rx_fsm.vhd: UART controller - finite state machine controlling RX side
--- Author(s): Name Surname (xlogin00)
+-- Author(s): Jakub Hamadej (xhamad03)
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -22,11 +22,11 @@ end entity;
 
 
 architecture behavioral of UART_RX_FSM is
-    -- type t_state is (IDLE, READ_DATA,SET_VALIDATE,END_IDLE);
+    -- declaring States
     type t_state is (IDLE, READ_DATA,END_IDLE);
     signal STATE_TYPES : t_state := IDLE;
 begin
-
+    -- behavior of states
     state_logic : process (CLK,RST) begin
         if RST = '1' then
             STATE_TYPES <= IDLE;
@@ -38,10 +38,8 @@ begin
                     end if;
                 when READ_DATA =>
                     if CNTTO10 = "1010" then
-                        --STATE_TYPES <= SET_VALIDATE;
                         STATE_TYPES <= END_IDLE;
                     end if;
-                --when SET_VALIDATE =>
                 when END_IDLE =>
                     STATE_TYPES <= IDLE;
                 when others =>
@@ -50,6 +48,7 @@ begin
         end if;
     end process state_logic;
 
+    -- bahevior of output for States
     output_logic : process(STATE_TYPES) begin
         case STATE_TYPES is
             when IDLE =>
@@ -58,9 +57,6 @@ begin
             when READ_DATA =>
                 DOUT_VLD <= '0';
                 START_COUNTING <= '1';
-            --when SET_VALIDATE =>
-              --  DOUT_VLD <= '1'; --mozna toto prepsat na jednotku
-                --START_COUNTING <= '0';
             when END_IDLE =>
                 DOUT_VLD <= '1';
                 START_COUNTING <= '0';
