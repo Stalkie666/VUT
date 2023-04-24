@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "proj2.h"
 
-#define FILE_NAME proj2.out
+#define FILE_NAME "proj2.out"
 #define ACTION_START 1
 
 //pak ji nastavit na nulu
