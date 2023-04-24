@@ -21,6 +21,9 @@ bool handle_arguments(int argc, char * argv[], arguments_t * arguments){
     arguments->maxTimeOfficialsBreak = atoi(argv[4]);
     arguments->maxTimePostOfficeIsClosed = atoi(argv[5]);
 
+
+    return true;
+
 }
 
 
