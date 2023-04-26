@@ -16,9 +16,8 @@ enum customerTask{
 
 typedef struct customer{
     int idZ;
-    int timeWaitToEnter;
     int chossenActivity;
-    bool isAvaliable;
+    bool isInFront;
 }customer_t;
 
 typedef struct official{
@@ -28,19 +27,16 @@ typedef struct official{
 
 // ve sdilene pameti, pamatuje si kolikaty radek se tiskne do souboru
 int * numberOfLines;
-
-bool init();
-
-void clean_up();
+bool * isPostOfficeOpen;
 
 bool handle_arguments(int argc, char * argv[], arguments_t * arguments);
 
-void wait_random_time();
+bool init();
 
 void process_customer();
-
-void take_a_break();
 
 void process_officials();
 
 void process_postOffice();
+
+void clean_up();
