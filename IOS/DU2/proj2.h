@@ -14,6 +14,25 @@ enum customerTask{
     financialServices = 3
 };
 
+typedef struct customer{
+    int idZ;
+    int timeWaitToEnter;
+    int chossenActivity;
+    bool isAvaliable;
+}customer_t;
+
+typedef struct official{
+    int idU;
+    int time
+}official_t;
+
+// ve sdilene pameti, pamatuje si kolikaty radek se tiskne do souboru
+int * numberOfLines;
+
+bool init();
+
+void clean_up();
+
 bool handle_arguments(int argc, char * argv[], arguments_t * arguments);
 
 void wait_random_time();
