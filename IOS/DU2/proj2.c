@@ -1,9 +1,18 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "proj2.h"
 
 #define FILE_NAME "proj2.out"
 #define ACTION_START 1
+
+void print_message(char * format, ...){
+    sem_wait(s_write);
+    va_list args;
+    va_start(args, format);
+    fprintf(streamFile,"%d: ",*lineCounter);
+    vfprintf(streamFile,format,args);
+    fflush(streamFile);
+    va_end(args);
+    sem_post(s_write);
+}
 
 bool handle_arguments(int argc, char * argv[], arguments_t * arguments){
     if( argc != 6 ){
@@ -23,7 +32,7 @@ bool handle_arguments(int argc, char * argv[], arguments_t * arguments){
     arguments->maxTimeOfficialsBreak = atoi(argv[4]);
     if( arguments->maxTimeOfficialsBreak < 0 || arguments->maxTimeOfficialsBreak > 100 ) argFlag = false;
     arguments->maxTimePostOfficeIsClosed = atoi(argv[5]);
-    if( arguments->maxTimePostOfficeIsClosed < 0 || arguments->maxTimePostOfficeIsClosed >= 10000 ) argFlag = false;
+    if( arguments->maxTimePostOfficeIsClosed < 0 || arguments->maxTimePostOfficeIsClosed > 10000 ) argFlag = false;
 
     if(!argFlag)
         fprintf(stderr,"One or more arguments were wrongly entered.\n");
@@ -32,15 +41,34 @@ bool handle_arguments(int argc, char * argv[], arguments_t * arguments){
 }
 
 bool init(){
+    streamFile = fopen(FILE_NAME,"w");
+    if(streamFile == NULL){
+        fprintf(stderr, "Opening file failed. Program will be terminated.\n");
+        exit(1);
+    }
+
+    //init pro povoleni zapisu
+    s_write = mmap(NULL,sizeof(sem_t), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, 0,0);
+    sem_init(s_write,1,1);
+    //predtim nastavit jako sdilenou pamet
+    *lineCounter = 1;
     /* TO-DO */
     return true;
 }
 
+void clean_up(){
+    fclose(streamFile);
+    /* TO-DO */   
+    sem_destroy(s_write);
+
+    munmap(s_write,sizeof(sem_t));
+}
 
 
-void process_customer(){
+
+void process_customer(int CustomerId){
     // vypsat A: Z idZ: started
-
+    print_message("Z %d: started\n",CustomerId);
     //cekacka pomoci usleep random time mezi <0,TZ>
 
     // nyni rohodnuti
@@ -62,9 +90,9 @@ void process_customer(){
 
 }
 
-void process_officials(){
+void process_officials(int OfficialId){
     // na zacatku kazdej z tech zmrdu prijde do prace a vypise A: U idU: started
-
+    print_message("U %d: started\n",OfficialId);
     // ted tu pry ten zmrd bude makat v cyklu dokud posta nezavre
         // pokud je nekdo v nejake fronte
             // jednu nahodne vybere a zni vytahne jednoho chudaka a zavola ho vypsanim A: U idU: serving a service of type X
@@ -90,6 +118,7 @@ void process_officials(){
 
 void process_postOffice(){
     // process posty nebo take Hlavni proces se spusti hned po inicializaci vseho potrebneho
+
     // odtud se budou forkovat vsechny child procesy
 
     // zacne tvorenim procesu pro zakazniky(cti pro ty zmrdy co furt otravujou)
@@ -103,9 +132,6 @@ void process_postOffice(){
     // potom ceka az uplne vsichni ti zbytecni lide ukonci svou existenci (asi pomoci semaforu) a ukonci vlastni existenci v main
 }
 
-void clean_up(){
-    /* TO-DO */   
-}
 
 
 int main(int argc, char * argv[]){
