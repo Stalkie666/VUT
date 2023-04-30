@@ -1,3 +1,8 @@
+# Makefile
+# Řešení IOS-DU2, 30.4.2023
+# Autor: Jakub Hamadej, FIT
+# Přeloženo: toto je Makefile, ten se nepřeklada
+
 CC=gcc
 CFLAGS=-std=gnu99 -Wall -Wextra -Werror -pedantic -pthread
 
