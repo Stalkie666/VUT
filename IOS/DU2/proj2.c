@@ -1,8 +1,13 @@
+// proj2.c
+   // Řešení IOS-DU2 30.4.2023
+   // Autor: Jakub Hamadej, FIT
+   // Přeloženo: gcc 9.4.0
+
 #include "proj2.h"
 
 #define FILE_NAME "proj2.out"
-#define ACTION_START 1
 
+// funkce na tisk do souboru
 void print_message(char * format, ...){
     sem_wait(s_write);
     va_list args;
@@ -14,7 +19,7 @@ void print_message(char * format, ...){
     va_end(args);
     sem_post(s_write);
 }
-
+// funkce na zpraovani vstupu
 bool handle_arguments(int argc, char * argv[], arguments_t * arguments){
     if( argc != 6 ){
         fprintf(stderr,"Not expected number of arguments.\n");
@@ -40,8 +45,9 @@ bool handle_arguments(int argc, char * argv[], arguments_t * arguments){
 
     return argFlag;
 }
-
+// funkce na inicializaci promennych
 bool init(){
+    //otevreni souboru pro zapis a overeni uspesnosti
     streamFile = fopen(FILE_NAME,"w");
     if(streamFile == NULL){
         fprintf(stderr, "Opening file failed. Program will be terminated.\n");
@@ -74,13 +80,14 @@ bool init(){
     frontCounter->front1 = 0;
     frontCounter->front2 = 0;
     frontCounter->front3 = 0;
-    /* TO-DO */
+
     return true;
 }
-
+// funkce na uklizeni pred ukoncenim programu
 void clean_up(){
+    // zavreni souboru
     fclose(streamFile);
-    /* TO-DO */   
+    // zniceni semaforu a uvalneni alokovane pameti
     sem_destroy(s_write);
     sem_destroy(s_task1);
     sem_destroy(s_task2);
@@ -88,7 +95,6 @@ void clean_up(){
     sem_destroy(s_taskContinue);
     sem_destroy(s_officialChoosing);
     sem_destroy(s_allowOfficiesGoHome);
-    // semafory
     munmap(s_write,sizeof(sem_t));
     munmap(s_task1,sizeof(sem_t));
     munmap(s_task2,sizeof(sem_t));
@@ -98,7 +104,7 @@ void clean_up(){
     munmap(s_allowOfficiesGoHome,sizeof(sem_t));
 
 
-    //sdilenu pamet
+    //uvolneni sdilene pameti promennych
     munmap(lineCounter,sizeof(int));
     munmap(customersWaiting,sizeof(int));
     munmap(isPostOfficeOpen,sizeof(bool));
@@ -113,14 +119,13 @@ void process_customer(int CustomerId, int maxTimeToWait){
     print_message("Z %d: started\n",CustomerId);
     //cekacka pomoci usleep random time mezi <0,TZ>
     usleep( rand() % (maxTimeToWait+1) );
-    // nyni rohodnuti jestli mam peska nebo budu srat urednika se svym pozadavkem
+    // rozhodnout jestli je posta otevrena
     if( *isPostOfficeOpen == true ){
         int choosenService = rand() % 3 + 1;
         *customersWaiting += 1;
         // vypsat A: Z idZ: entering office for a service X
         print_message("Z %d: entering office for a service %d\n",CustomerId,choosenService);
-        // vybrat do ktere fronty se zaradim
-        // ceka az na nej zavola urednik
+        // vybrat do ktere fronty se Zakaznik zaradi a pocka na pokyn urednika
         switch (choosenService)
         {
         case 1:
@@ -144,28 +149,27 @@ void process_customer(int CustomerId, int maxTimeToWait){
         *customersWaiting -= 1;
         sem_post(s_taskContinue);
 
-        // pote vypsat A: Z idZ: called by office worker
+        // vypsat A: Z idZ: called by office worker
         print_message("Z %d: called by office worker\n",CustomerId);
-        // nasledne jsem liny hovado => usleep po random time <0,10>
+        // podle pokynu cekat random cas <0,10>
         usleep( rand() % 11 );
     }
     // Vypsat proces A: Z idZ: going home
     print_message("Z %d: going home\n",CustomerId);
-    // a vypadnout z tohoto procesu kde v mainu na mne ceka smrt
     return;
 }
 
 void process_officials(int OfficialId, int maxTimeForBreak){
     srand(getpid());
-    // na zacatku kazdej z tech zmrdu prijde do prace a vypise A: U idU: started
+    // vypsat A: U idU: started
     print_message("U %d: started\n",OfficialId);
-    // ted tu pry ten zmrd bude makat v cyklu dokud posta nezavre a neobslouzi vsechny zakazniky
+    // opakovat cyklus dokud je posta otevrena nebo jeste nejaky zakaznik nebyl obslouzen
     while( *isPostOfficeOpen == true || *customersWaiting > 0 ){
 
         // pokud je nekdo v nejake fronte
         sem_wait(s_officialChoosing);
         if( *customersWaiting > 0 ){
-            // jednu nahodne vybere a zni vytahne jednoho chudaka a zavola ho vypsanim A: U idU: serving a service of type X
+            // zavolat nahodne zakaznika z nejake fronty a vypsat A: U idU: serving a service of type X
             int index = rand() % 3;
             bool isChosen = false;
             do
@@ -204,39 +208,36 @@ void process_officials(int OfficialId, int maxTimeForBreak){
             print_message("U %d: serving a service of type %d\n",OfficialId,(index+1));
             sem_wait(s_taskContinue);
             sem_post(s_officialChoosing);
-            // pote je to liny zmrd a pomoci usleep ceka <0,10>
+            // cekat podle zadani pomoci usleep <0,10>
             usleep( rand() % 11 );
-            // pote oznami ze te teda laskave doobslouzil U idU: service finished
+            // vypsat A: U idU: service finished
             print_message("U %d: service finished\n",OfficialId);
             // pote pokracuje v "praci"
         }
-        // pokud "nevidi" nikoho v zadne fronte, jde se ten zmetek ulit
+        // pokud "nevidi" nikoho v zadne fronte, dat si pauzu
         else{
             sem_post(s_officialChoosing);
             // vypise A: U idU: taking break
             print_message("U %d: taking break\n",OfficialId);
-            // nasledne si ta lina svine pomuze funkci usleep a flaka se nahodne (tak urcite) v intervalu <0,TU>
+            // zavolat podle zadani usleep v intervalu <0,TU>
             usleep( rand() % (maxTimeForBreak+1) );
-            // potom laskave flakac vypise ze A: U idU: break finished
+            // vypsat A: U idU: break finished
             print_message("U %d: break finished\n", OfficialId);
-            // pote pokracuje v "praci"
         }
     }
-    // posta zavrela a uz "obslouzil" vsechny ctene zakazniky a tak si ten zmrd rekl ze by mohl jit domu
-        // pichne si hodiny a vypise A: U idU: going home
+    // cekat na vypis posty ze zavrela
     sem_wait(s_allowOfficiesGoHome);
+    // vypsat A: U idU: going home
     print_message("U %d: going home\n",OfficialId);
     sem_post(s_allowOfficiesGoHome);
-    
-    // navraci se do main kde na toho zmrda po pravu ceka smrt
+
     return;
 }
 
 void process_postOffice(arguments_t * arguments){
     *isPostOfficeOpen = true;
     // process posty nebo take Hlavni proces se spusti hned po inicializaci vseho potrebneho
-    // odtud se budou forkovat vsechny child procesy
-    // zacne tvorenim procesu pro zakazniky(cti pro ty zmrdy co furt otravujou)
+    // vytvoreni procesu Zakazniku
     for( int i = 1; i <= arguments->numberOfCustomers; ++i  ){
         pid_t id = fork();
         if( id == 0 ){
@@ -244,7 +245,7 @@ void process_postOffice(arguments_t * arguments){
             exit(0);
         }
     }
-    // pokracujeme vytvorenim tech zmrdu co se flakaji - uredniku
+    // vytvoreni procesu Uredniku
     for( int i = 1; i <= arguments->numberOfOfficials; ++i ){
         pid_t id = fork();
         if( id == 0 ) {
@@ -253,15 +254,15 @@ void process_postOffice(arguments_t * arguments){
         }
     }
 
-    // nyni se bude flakat i budova samotna (ne neptejte se mne jak) po nahodnou dobu <F/2 , F>
+    // pomoce funkce usleep cekat podle zadani po nahodnou dobu <F/2 , F>
     int halfWait =  arguments->maxTimePostOfficeIsClosed / 2;
     srand(getpid());
     usleep( ( rand() % halfWait) + halfWait );
-    // potom si vzpomene ze by taky mohla skoncit a tak vypise A: closing 
+    // nastavit flag a vypsat A: closing
     *isPostOfficeOpen = false;
     print_message("closing\n");
     sem_post(s_allowOfficiesGoHome);
-    // potom ceka az uplne vsichni ti zbytecni lide ukonci svou existenci (asi pomoci semaforu) a ukonci vlastni existenci v main
+    // vyckavani na ukonceni vsech child procesu
     while(wait(NULL) > 0);
     return;
 }
@@ -269,16 +270,13 @@ void process_postOffice(arguments_t * arguments){
 
 
 int main(int argc, char * argv[]){
-    setbuf(stdout, NULL);
     arguments_t arguments;
     if( !handle_arguments(argc,argv,&arguments) ) exit(1);
     if(!init()){
         fprintf(stderr,"Initilazation failed.\n");
         exit(1);
     }
-
     process_postOffice(&arguments);
-
     clean_up();
     exit(0);
 }
