@@ -3,7 +3,11 @@
 #include <stdbool.h>
 #include <stdarg.h>
 #include <semaphore.h>
+#include <time.h>
 #include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 typedef struct arguments{
     int numberOfCustomers;
@@ -13,33 +17,26 @@ typedef struct arguments{
     int maxTimePostOfficeIsClosed;
 }arguments_t;
 
-enum customerTask{
-    letters = 1,
-    packages = 2,
-    financialServices = 3
-};
-
-typedef struct customer{
-    int idZ;
-    int chossenActivity;
-    bool isInFront;
-}customer_t;
-
-typedef struct official{
-    int idU;
-    int time;
-}official_t;
+typedef struct frontCounterStruct{
+    int front1;
+    int front2;
+    int front3;
+}frontCounter_t;
 
 //semafory
 sem_t * s_write;
-sem_t * stask1;
-sem_t * stask2;
-sem_t * stask3;
+sem_t * s_task1;        //cekani v ve fronte 1
+sem_t * s_task2;        //cekani v ve fronte 2
+sem_t * s_task3;        //cekani v ve fronte 3
+sem_t * s_taskContinue; //dokonceni decrementace
+sem_t * s_officialChoosing; //cekani az si uradnik vybere frontu nebo prestavku
+sem_t * s_allowOfficiesGoHome;
 
-
-FILE * streamFile = NULL;
-int * lineCounter;    // ve sdilene pameti, pamatuje si kolikaty radek se tiskne do souboru
-bool * isPostOfficeOpen;
+FILE *streamFile = NULL;
+int *lineCounter = NULL;    // ve sdilene pameti, pamatuje si kolikaty radek se tiskne do souboru
+frontCounter_t * frontCounter = NULL;
+int *customersWaiting = NULL;
+bool *isPostOfficeOpen = NULL;
 
 void print_message(char * format, ...);
 
@@ -47,10 +44,10 @@ bool handle_arguments(int argc, char * argv[], arguments_t * arguments);
 
 bool init();
 
-void process_customer(int CustomerId);
-
-void process_officials(int OfficialId);
-
-void process_postOffice();
-
 void clean_up();
+
+void process_customer(int CustomerId, int maxTimeToWait);
+
+void process_officials(int OfficialId, int maxTimeForBreak);
+
+void process_postOffice(arguments_t * arguments);
