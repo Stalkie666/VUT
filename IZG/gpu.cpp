@@ -7,6 +7,8 @@
 
 #include <student/gpu.hpp>
 
+int drawID_Global = 0;
+
 void clear( GPUMemory &mem,ClearCommand cmd  ){
   if(cmd.clearColor){
     int realSize = mem.framebuffer.height * mem.framebuffer.width * 4;
@@ -29,6 +31,68 @@ void clear( GPUMemory &mem,ClearCommand cmd  ){
   }
 }
 
+uint32_t computeVertexID( GPUMemory & mem, VertexArray const&vao,uint32_t shaderIncocation){
+  if(vao.indexBufferID < 0) return shaderIncocation;
+ 
+  Buffer indexBuffer = mem.buffers[vao.indexBufferID];
+  
+  uint64_t offsetTmp = vao.indexOffset / 2;
+
+  if( vao.indexType == IndexType::UINT32){
+    uint32_t*ind = ( ((uint32_t*)indexBuffer.data) + offsetTmp);
+    return ind[shaderIncocation];
+  }
+  else if(vao.indexType == IndexType::UINT16){
+    uint16_t*ind = ( ((uint16_t*)indexBuffer.data) + offsetTmp);
+    return ind[shaderIncocation];
+  }
+  else if(vao.indexType == IndexType::UINT8){
+    uint8_t*ind = ( ((uint8_t*)indexBuffer.data) + offsetTmp);
+    return ind[shaderIncocation];
+  }
+  else
+    return 0;
+}
+
+InVertex vertexAssembly(GPUMemory &mem,VertexArray vao,InVertex invertex){
+  InVertex returnVertex = invertex;
+  for(uint32_t i = 0; i < maxAttributes;++i){
+    uint64_t offsetTmp = vao.vertexAttrib[i].offset;
+    uint64_t strideTmp = vao.vertexAttrib[i].stride;
+
+  void * Buffer = (void*) (mem.buffers[vao.vertexAttrib[i].bufferID].data);
+  char * attributeAddress = (char*)Buffer + offsetTmp + invertex.gl_VertexID*strideTmp; 
+
+    switch( vao.vertexAttrib[i].type ){
+      case AttributeType::FLOAT:
+        returnVertex.attributes[i].v1 = *((float*)attributeAddress);
+        break;
+      case AttributeType::VEC2:
+        returnVertex.attributes[i].v2 = *((glm::vec2*)attributeAddress);
+        break;
+      case AttributeType::VEC3:
+        returnVertex.attributes[i].v3 = *((glm::vec3*)attributeAddress);
+        break;
+      case AttributeType::VEC4:
+      returnVertex.attributes[i].v4 = *((glm::vec4*)attributeAddress);
+      break;
+    }
+  }
+  return returnVertex;
+}
+
+void draw(GPUMemory &mem, DrawCommand cmd){
+  VertexShader vs = mem.programs[cmd.programID].vertexShader;
+  for( uint32_t n = 0; n < cmd.nofVertices; ++n ){
+    InVertex inVertex;
+    OutVertex outVertex;
+    ShaderInterface si;
+    inVertex.gl_VertexID = computeVertexID(mem,cmd.vao,n); //mozna neco jineho
+    inVertex.gl_DrawID = drawID_Global;
+    inVertex = vertexAssembly(mem,cmd.vao,inVertex);
+    vs(outVertex,inVertex,si);
+  }
+}
 
 //! [gpu_execute]
 void gpu_execute(GPUMemory&mem,CommandBuffer &cb){
@@ -39,7 +103,8 @@ void gpu_execute(GPUMemory&mem,CommandBuffer &cb){
   /// mem obsahuje paměť grafické karty.
   /// cb obsahuje command buffer pro zpracování.
   /// Bližší informace jsou uvedeny na hlavní stránce dokumentace.
-
+  drawID_Global = 0;
+  
   for( uint32_t i = 0; i < cb.nofCommands; ++i ){
     CommandType type = cb.commands[i].type;
     CommandData data = cb.commands[i].data;
@@ -47,14 +112,8 @@ void gpu_execute(GPUMemory&mem,CommandBuffer &cb){
       clear(mem, data.clearCommand);    
     }
     else if( type == CommandType::DRAW ){
-      DrawCommand cmd = cb.commands[i].data.drawCommand;
-      VertexShader vs = mem.programs[cmd.programID].vertexShader;
-      for( uint32_t n = 0; n < cmd.nofVertices; ++n ){
-        InVertex inVertex;
-        OutVertex outVertex;
-        ShaderInterface si;
-        vs(outVertex,inVertex,si);
-      }
+      draw(mem,data.drawCommand);
+      drawID_Global++;
     }
   }
   
