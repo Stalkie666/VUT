@@ -9,6 +9,62 @@
 
 ///\endcond
 
+void addClearCommand(CommandBuffer & cb){
+  int32_t index = cb.nofCommands;
+  cb.commands[index].type = CommandType::CLEAR;
+  cb.commands[index].data.clearCommand.clearColor = true;
+  cb.commands[index].data.clearCommand.clearDepth = true;
+  cb.commands[index].data.clearCommand.color = glm::vec4(0.1,0.15,0.1,1); 
+  cb.commands[index].data.clearCommand.depth = 1e11;
+  cb.nofCommands += 1;
+}
+
+void addDrawCommand(CommandBuffer & cb,Mesh const&mesh){
+  int32_t index = cb.nofCommands;
+  cb.commands[index].type = CommandType::DRAW;
+  cb.commands[index].data.drawCommand.backfaceCulling = !mesh.doubleSided;
+  cb.commands[index].data.drawCommand.programID = 0; 
+  cb.commands[index].data.drawCommand.nofVertices = mesh.nofIndices;
+
+  cb.commands[index].data.drawCommand.vao.indexType = mesh.indexType;
+  cb.commands[index].data.drawCommand.vao.indexOffset = mesh.indexOffset;
+  cb.commands[index].data.drawCommand.vao.indexBufferID = mesh.indexBufferID;
+
+  //asi vsechny, ale bude to problem, mozna tam bude jiny pocet
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[0].bufferID  = mesh.position.bufferID;
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[0].offset    = mesh.position.offset;
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[0].stride    = mesh.position.stride;
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[0].type      = mesh.position.type;
+
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[1].bufferID  = mesh.normal.bufferID;
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[1].offset    = mesh.normal.offset;
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[1].stride    = mesh.normal.stride;
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[1].type      = mesh.normal.type;
+
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[2].bufferID  = mesh.texCoord.bufferID;
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[2].offset    = mesh.texCoord.offset;
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[2].stride    = mesh.texCoord.stride;
+  cb.commands[index].data.drawCommand.vao.vertexAttrib[2].type      = mesh.texCoord.type;
+
+  cb.nofCommands++;
+}
+
+
+void prepareNode(GPUMemory&mem,CommandBuffer&cb,Node const&node,Model const&model,glm::mat4 const&prubeznaMatice){
+  if(node.mesh >= 0){
+    Mesh const& mesh = model.meshes[node.mesh];
+    addDrawCommand(cb,mesh);
+   
+
+
+
+
+  }
+  for(size_t i = 0; i < node.children.size();++i)
+    prepareNode(mem,cb,node.children[i],model,prubeznaMatice);
+}
+
+
 /**
  * @brief This function prepares model into memory and creates command buffer
  *
@@ -25,6 +81,11 @@ void prepareModel(GPUMemory&mem,CommandBuffer&commandBuffer,Model const&model){
   /// Vaším úkolem je správně projít model a vložit vykreslovací příkazy do commandBufferu.
   /// Zároveň musíte vložit do paměti textury, buffery a uniformní proměnné, které buffer command buffer využívat.
   /// Bližší informace jsou uvedeny na hlavní stránce dokumentace a v testech.
+  addClearCommand(commandBuffer);
+
+  glm::mat4 jednotkovaMatice = glm::mat4(1.f);
+  for(size_t i = 0; i < model.roots.size();++i)
+    prepareNode(mem,commandBuffer,model.roots[i],model,jednotkovaMatice);
 }
 //! [drawModel]
 

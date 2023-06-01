@@ -115,6 +115,8 @@ void gpu_execute(GPUMemory&mem,CommandBuffer &cb){
       draw(mem,data.drawCommand);
       drawID_Global++;
     }
+
+    
   }
   
 }
