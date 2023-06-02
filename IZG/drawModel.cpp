@@ -54,11 +54,6 @@ void prepareNode(GPUMemory&mem,CommandBuffer&cb,Node const&node,Model const&mode
   if(node.mesh >= 0){
     Mesh const& mesh = model.meshes[node.mesh];
     addDrawCommand(cb,mesh);
-   
-
-
-
-
   }
   for(size_t i = 0; i < node.children.size();++i)
     prepareNode(mem,cb,node.children[i],model,prubeznaMatice);
@@ -81,6 +76,30 @@ void prepareModel(GPUMemory&mem,CommandBuffer&commandBuffer,Model const&model){
   /// Vaším úkolem je správně projít model a vložit vykreslovací příkazy do commandBufferu.
   /// Zároveň musíte vložit do paměti textury, buffery a uniformní proměnné, které buffer command buffer využívat.
   /// Bližší informace jsou uvedeny na hlavní stránce dokumentace a v testech.
+  
+  mem.programs[0].fragmentShader = drawModel_fragmentShader;
+  mem.programs[0].vertexShader = drawModel_vertexShader;
+
+  mem.programs[0].vs2fs[0] = AttributeType::VEC3;
+  mem.programs[0].vs2fs[1] = AttributeType::VEC3;
+  mem.programs[0].vs2fs[2] = AttributeType::VEC2;
+  mem.programs[0].vs2fs[3] = AttributeType::UINT;
+
+  
+  for(size_t i = 0; i < model.buffers.size(); ++i){
+    mem.buffers[i].data = model.buffers[i].data;
+    mem.buffers[i].size = model.buffers[i].size;
+  }
+  
+  for(size_t i = 0; i < model.textures.size();++i){
+    mem.textures[i] = model.textures[i];
+  }
+
+  for( size_t i = 0; i < model.meshes.size(); ++i ){
+    mem.uniforms[i].v4 = model.meshes[i].diffuseColor;
+  }
+
+
   addClearCommand(commandBuffer);
 
   glm::mat4 jednotkovaMatice = glm::mat4(1.f);

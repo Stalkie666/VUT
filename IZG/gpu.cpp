@@ -114,9 +114,7 @@ void gpu_execute(GPUMemory&mem,CommandBuffer &cb){
     else if( type == CommandType::DRAW ){
       draw(mem,data.drawCommand);
       drawID_Global++;
-    }
-
-    
+    }    
   }
   
 }
