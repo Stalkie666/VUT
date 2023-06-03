@@ -132,8 +132,23 @@ void drawModel_vertexShader(OutVertex&outVertex,InVertex const&inVertex,ShaderIn
   /// \todo Tato funkce reprezentujte vertex shader.<br>
   /// Vaším úkolem je správně trasnformovat vrcholy modelu.
   /// Bližší informace jsou uvedeny na hlavní stránce dokumentace.
+
+   
+
+  // pozice
+  outVertex.attributes[0].v3 = si.uniforms[10+inVertex.gl_DrawID*5+0].m4 * glm::vec4(inVertex.attributes[0].v3,1.f);
+  // normala
+  outVertex.attributes[1].v3 = si.uniforms[10+inVertex.gl_DrawID*5+1].m4 * glm::vec4(inVertex.attributes[1].v3,0.f);
+  // tex. koordinaty - poze se kopiruji
+  outVertex.attributes[2].v2 = inVertex.attributes[2].v2;
+  // cislo kresliciho prikazu gl_DrawID
+  outVertex.attributes[3].u1 = inVertex.gl_DrawID;
+
+  outVertex.gl_Position = si.uniforms[0].m4 * si.uniforms[10 + inVertex.gl_DrawID*5 + 0].m4 * glm::vec4(inVertex.attributes[0].v3,1.f);
 }
 //! [drawModel_vs]
+
+
 
 /**
  * @brief This functionrepresents fragment shader of texture rendering method.
@@ -150,6 +165,32 @@ void drawModel_fragmentShader(OutFragment&outFragment,InFragment const&inFragmen
   /// \todo Tato funkce reprezentujte fragment shader.<br>
   /// Vaším úkolem je správně obarvit fragmenty a osvětlit je pomocí lambertova osvětlovacího modelu.
   /// Bližší informace jsou uvedeny na hlavní stránce dokumentace.
+  
+  float aF = 0.2f;
+  glm::vec3 N = inFragment.attributes[1].v3;
+
+  glm::vec3 KameraPozice = inFragment.attributes[0].v3 - si.uniforms[2].v3;
+  if( si.uniforms[10 + inFragment.attributes[3].u1*5 + 4].v1 > 0.f && glm::normalize(N) == glm::normalize(KameraPozice) )
+    N = -N;
+
+  // pozice svetla -> pozice fragmentu vektor
+  glm::vec3 L = si.uniforms[1].v3 - inFragment.attributes[0].v3;
+  float dF = glm::clamp( glm::dot( L ,N ),0.f,1.f );
+
+
+  glm::vec4 dC;
+  if( si.uniforms[10 + inFragment.attributes[3].u1*5 + 3].i1 == -1 ){
+    dC = si.uniforms[10 + inFragment.attributes[3].u1*5 + 2].v4;
+  }
+  else{
+    dC = read_texture( si.textures[ si.uniforms[10 + inFragment.attributes[3].u1*5 + 3].i1 ] , inFragment.attributes[2].v2 );
+  }
+  
+
+  glm::vec3 aL = dC*aF;
+  glm::vec3 dL = dC*dF;
+
+  outFragment.gl_FragColor = glm::vec4(aL + dL,dC.a);
 }
 //! [drawModel_fs]
 
