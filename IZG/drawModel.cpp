@@ -49,12 +49,21 @@ void addDrawCommand(CommandBuffer & cb,Mesh const&mesh){
   cb.nofCommands++;
 }
 
-
-void prepareNode(GPUMemory&mem,CommandBuffer&cb,Node const&node,Model const&model,glm::mat4 const&prubeznaMatice){
+void prepareNode(GPUMemory&mem,CommandBuffer&cb,Node const&node,Model const&model,glm::mat4 prubeznaMatice){
   if(node.mesh >= 0){
     Mesh const& mesh = model.meshes[node.mesh];
     addDrawCommand(cb,mesh);
   }
+  
+  prubeznaMatice = prubeznaMatice * node.modelMatrix;
+  
+  mem.uniforms[10 + (cb.nofCommands-2)*5+0].m4 = prubeznaMatice;
+  mem.uniforms[10 + (cb.nofCommands-2)*5+1].m4 = glm::transpose(glm::inverse(prubeznaMatice));
+  mem.uniforms[10 + (cb.nofCommands-2)*5+2].v4 = model.meshes[node.mesh].diffuseColor;
+  mem.uniforms[10 + (cb.nofCommands-2)*5+3].i1 = model.meshes[node.mesh].diffuseTexture;
+  mem.uniforms[10 + (cb.nofCommands-2)*5+4].v1 = model.meshes[node.mesh].doubleSided;
+  
+
   for(size_t i = 0; i < node.children.size();++i)
     prepareNode(mem,cb,node.children[i],model,prubeznaMatice);
 }
@@ -95,9 +104,9 @@ void prepareModel(GPUMemory&mem,CommandBuffer&commandBuffer,Model const&model){
     mem.textures[i] = model.textures[i];
   }
 
-  for( size_t i = 0; i < model.meshes.size(); ++i ){
-    mem.uniforms[i].v4 = model.meshes[i].diffuseColor;
-  }
+  // for( size_t i = 0; i < model.meshes.size(); ++i ){
+  //   mem.uniforms[i].v4 = model.meshes[i].diffuseColor;
+  // }
 
 
   addClearCommand(commandBuffer);
