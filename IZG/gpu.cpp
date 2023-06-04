@@ -144,8 +144,8 @@ float calculateDepth(Triangle&triangle,Point point){
   return hloubka;
 }
 
-glm::vec3 calculateColor(Triangle&triangle,Point point){
-  float R,G,B;
+glm::vec4 calculateColor(Triangle&triangle,Point point){
+  float R,G,B,A;
 
   Point points[3];
   for(int i = 0; i < 3; ++i){
@@ -185,7 +185,12 @@ glm::vec3 calculateColor(Triangle&triangle,Point point){
   B += lambda[1] * triangle.points[1].attributes[0].v3.b;
   B += lambda[2] * triangle.points[2].attributes[0].v3.b;
 
-  return glm::vec3(R,G,B);
+  A = 0;
+  A += lambda[0] * triangle.points[0].attributes[0].v4.a;
+  A += lambda[1] * triangle.points[1].attributes[0].v4.a;
+  A += lambda[2] * triangle.points[2].attributes[0].v4.a;
+
+  return glm::vec4(R,G,B,A);
 }
 
 void rasterize(Frame&frame,Triangle &triangle,Program const&prg, bool backFaceCulling){
@@ -261,16 +266,16 @@ void rasterize(Frame&frame,Triangle &triangle,Program const&prg, bool backFaceCu
         tmp.x = x;
         tmp.y = y;
         infragment.gl_FragCoord.z = calculateDepth(triangle,tmp);
-        infragment.attributes[0].v3 = calculateColor(triangle,tmp);
+        infragment.attributes[0].v4 = calculateColor(triangle,tmp);
         prg.fragmentShader(outFragment,infragment,si);
 
         //zmena buferu
         int32_t position = y*frame.width + x;
-        float alpha = outFragment.gl_FragColor.w;
+        float alpha = outFragment.gl_FragColor.a;
         if( alpha < 1.f ){
-          frame.color[position*4 + 0] = glm::clamp((frame.color[position*4 + 0] / 255.f)*(1-alpha) +  (outFragment.gl_FragColor.r)*(alpha),0.f,1.f) * 255.f;
-          frame.color[position*4 + 1] = glm::clamp((frame.color[position*4 + 1] / 255.f)*(1-alpha) +  (outFragment.gl_FragColor.g)*(alpha),0.f,1.f) * 255.f;
-          frame.color[position*4 + 2] = glm::clamp((frame.color[position*4 + 2] / 255.f)*(1-alpha) +  (outFragment.gl_FragColor.b)*(alpha),0.f,1.f) * 255.f;
+          frame.color[position*4 + 0] =(uint8_t)(glm::clamp((frame.color[position*4 + 0] / 255.f)*(1-alpha)+(outFragment.gl_FragColor.r)*(alpha),0.f,1.f) * 255.f );
+          frame.color[position*4 + 1] =(uint8_t)(glm::clamp((frame.color[position*4 + 1] / 255.f)*(1-alpha)+(outFragment.gl_FragColor.g)*(alpha),0.f,1.f) * 255.f );
+          frame.color[position*4 + 2] =(uint8_t)(glm::clamp((frame.color[position*4 + 2] / 255.f)*(1-alpha)+(outFragment.gl_FragColor.b)*(alpha),0.f,1.f) * 255.f + 0.1f );
         }
         if( frame.depth[x*y] >= infragment.gl_FragCoord.z ){ 
           if( alpha == 1 ){
