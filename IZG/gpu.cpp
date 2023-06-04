@@ -229,20 +229,20 @@ void rasterize(Frame&frame,Triangle &triangle,Program const&prg, bool backFaceCu
   minX = ( minX < 0 ) ? 0 : minX;
   minY = ( minY < 0 ) ? 0 : minY;
 
-  int h1x = (int)triangle.points[1].gl_Position.x - (int)triangle.points[0].gl_Position.x;
-  int h2x = (int)triangle.points[2].gl_Position.x - (int)triangle.points[1].gl_Position.x;
-  int h3x = (int)triangle.points[0].gl_Position.x - (int)triangle.points[2].gl_Position.x;
+  int h1x = triangle.points[1].gl_Position.x - triangle.points[0].gl_Position.x;
+  int h2x = triangle.points[2].gl_Position.x - triangle.points[1].gl_Position.x;
+  int h3x = triangle.points[0].gl_Position.x - triangle.points[2].gl_Position.x;
 
-  int h1y = (int)triangle.points[1].gl_Position.y - (int)triangle.points[0].gl_Position.y;
-  int h2y = (int)triangle.points[2].gl_Position.y - (int)triangle.points[1].gl_Position.y; 
-  int h3y = (int)triangle.points[0].gl_Position.y - (int)triangle.points[2].gl_Position.y; 
+  int h1y = triangle.points[1].gl_Position.y - triangle.points[0].gl_Position.y;
+  int h2y = triangle.points[2].gl_Position.y - triangle.points[1].gl_Position.y; 
+  int h3y = triangle.points[0].gl_Position.y - triangle.points[2].gl_Position.y; 
 
-  int b1x = minX - (int)triangle.points[0].gl_Position.x;
-  int b1y = minY - (int)triangle.points[0].gl_Position.y;
-  int b2x = minX - (int)triangle.points[1].gl_Position.x;
-  int b2y = minY - (int)triangle.points[1].gl_Position.y;
-  int b3x = minX - (int)triangle.points[2].gl_Position.x;
-  int b3y = minY - (int)triangle.points[2].gl_Position.y;
+  int b1x = minX - triangle.points[0].gl_Position.x;
+  int b1y = minY - triangle.points[0].gl_Position.y;
+  int b2x = minX - triangle.points[1].gl_Position.x;
+  int b2y = minY - triangle.points[1].gl_Position.y;
+  int b3x = minX - triangle.points[2].gl_Position.x;
+  int b3y = minY - triangle.points[2].gl_Position.y;
 
   int e1 = b1y * h1x - b1x * h1y;
   int e2 = b2y * h2x - b2x * h2y;
@@ -275,7 +275,7 @@ void rasterize(Frame&frame,Triangle &triangle,Program const&prg, bool backFaceCu
         if( alpha < 1.f ){
           frame.color[position*4 + 0] =(uint8_t)(glm::clamp((frame.color[position*4 + 0] / 255.f)*(1-alpha)+(outFragment.gl_FragColor.r)*(alpha),0.f,1.f) * 255.f );
           frame.color[position*4 + 1] =(uint8_t)(glm::clamp((frame.color[position*4 + 1] / 255.f)*(1-alpha)+(outFragment.gl_FragColor.g)*(alpha),0.f,1.f) * 255.f );
-          frame.color[position*4 + 2] =(uint8_t)(glm::clamp((frame.color[position*4 + 2] / 255.f)*(1-alpha)+(outFragment.gl_FragColor.b)*(alpha),0.f,1.f) * 255.f + 0.1f );
+          frame.color[position*4 + 2] =(uint8_t)(glm::clamp((frame.color[position*4 + 2] / 255.f)*(1-alpha)+(outFragment.gl_FragColor.b)*(alpha),0.f,1.f) * 255.f + 0.000005f );
         }
         if( frame.depth[x*y] >= infragment.gl_FragCoord.z ){ 
           if( alpha == 1 ){
