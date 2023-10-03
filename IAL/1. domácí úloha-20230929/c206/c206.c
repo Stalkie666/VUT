@@ -232,6 +232,9 @@ void DLL_DeleteFirst( DLList *list ) {
 		list->lastElement = NULL;
 		list->activeElement = NULL;
 	}
+	else{
+		list->firstElement->previousElement = NULL;
+	}
 	if(tmp != NULL) free(tmp);
 }
 
@@ -250,6 +253,9 @@ void DLL_DeleteLast( DLList *list ) {
 	if(list->lastElement = NULL){
 		list->firstElement = NULL;
 		list->activeElement = NULL;
+	}
+	else{
+		list->lastElement->nextElement = NULL;
 	}
 	if(tmp != NULL) free(tmp);
 }
