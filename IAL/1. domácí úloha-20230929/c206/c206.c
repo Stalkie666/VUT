@@ -96,7 +96,18 @@ void DLL_Init( DLList *list ) {
  * @param list Ukazatel na inicializovanou strukturu dvousměrně vázaného seznamu
  */
 void DLL_Dispose( DLList *list ) {
-	solved = false; /* V případě řešení, smažte tento řádek! */
+	if(list == NULL){
+		DLL_Error();
+		return;
+	}
+	while(list->firstElement != NULL){
+		DLLElementPtr tmp = list->firstElement;
+		list->firstElement = list->firstElement->nextElement;
+		free(tmp);
+	}
+	list->firstElement = NULL;
+	list->lastElement = NULL;
+	list->activeElement = NULL;
 }
 
 /**
