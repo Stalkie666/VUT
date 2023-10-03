@@ -86,6 +86,8 @@ void untilLeftPar( Stack *stack, char *postfixExpression, unsigned *postfixExpre
  */
 void doOperation( Stack *stack, char c, char *postfixExpression, unsigned *postfixExpressionLength ) {
 	solved = false; /* V případě řešení, smažte tento řádek! */
+
+	// zjistit jestli hodit znak na stak nebo na postfix
 }
 
 /**
