@@ -116,13 +116,13 @@ void doOperation( Stack *stack, char c, char *postfixExpression, unsigned *postf
 		default:{
 			char tmp = '\0';
 			
-			Stack_Top(stack,&tmp);
+			if(!Stack_IsEmpty(stack)) Stack_Top(stack,&tmp);
 			if( Stack_IsEmpty(stack) || tmp == '(' ||  getPriority(tmp) < getPriority(c) ) Stack_Push(stack,c);
 			else{
 				while(getPriority(tmp) >= getPriority(c) && !Stack_IsEmpty(stack)){
 					postfixExpression[(*postfixExpressionLength)++] = tmp;
 					Stack_Pop(stack);
-					Stack_Top(stack,&tmp);
+					if(!Stack_IsEmpty(stack)) Stack_Top(stack,&tmp);
 				}
 				Stack_Push(stack,c);
 			}
@@ -218,7 +218,11 @@ char *infix2postfix( const char *infixExpression ) {
  * @param value hodnota k vložení na zásobník
  */
 void expr_value_push( Stack *stack, int value ) {
-	solved = false; /* V případě řešení, smažte tento řádek! */
+	Stack_Push(stack, (char)(value >> 0) );
+	Stack_Push(stack, (char)(value >> 4 ) );
+	Stack_Push(stack, (char)(value >> 8 ) );
+	Stack_Push(stack, (char)(value >> 12 ) );
+	
 }
 
 /**
@@ -234,8 +238,13 @@ void expr_value_push( Stack *stack, int value ) {
  *   výsledné celočíselné hodnoty z vrcholu zásobníku
  */
 void expr_value_pop( Stack *stack, int *value ) {
-	solved = false; /* V případě řešení, smažte tento řádek! */
 	*value = 0;
+	for(int i = 4; i > 0; --i){
+		char tmp;
+		if(!Stack_IsEmpty(stack)) Stack_Top(stack,&tmp);
+		*value |= ( (unsigned int)tmp << ( (i-1)*4));
+		Stack_Pop(stack);
+	}
 }
 
 
@@ -262,8 +271,64 @@ void expr_value_pop( Stack *stack, int *value ) {
  * @return výsledek vyhodnocení daného výrazu na základě poskytnutých hodnot proměnných
  */
 bool eval( const char *infixExpression, VariableValue variableValues[], int variableValueCount, int *value ) {
-	solved = false; /* V případě řešení, smažte tento řádek! */
-	return NULL;
+	char * posfix = infix2postfix(infixExpression);
+	if(posfix == NULL) return false;
+	char * tmpFree = posfix;
+	Stack * stack = (Stack*)malloc(sizeof(Stack));
+	Stack_Init(stack);
+
+	while( *posfix != '\0' ){
+		switch (*posfix){
+			case '+':{
+				int tmp1 = 1,tmp2 = 1;
+				expr_value_pop(stack,&tmp1);
+				expr_value_pop(stack,&tmp2);
+				tmp1 += tmp2;
+				expr_value_push(stack,tmp1);
+				}
+				break;
+			case '-':{
+				int tmp1 = 1, tmp2 = 1;
+				expr_value_pop(stack,&tmp1);
+				expr_value_pop(stack,&tmp2);
+				tmp1 = tmp2 - tmp1;
+				expr_value_push(stack,tmp1);
+				}
+				break;
+			case '*':{
+				int tmp1 = 1, tmp2 = 1;
+				expr_value_pop(stack,&tmp1);
+				expr_value_pop(stack,&tmp2);
+				tmp1 = tmp1*tmp2;
+				expr_value_push(stack,tmp1);
+				}
+				break;
+			case '/':{
+				int tmp1 = 1, tmp2 = 1;
+				expr_value_pop(stack,&tmp1);
+				expr_value_pop(stack,&tmp2);
+				tmp1 = tmp2 / tmp1;
+				expr_value_push(stack,tmp1);
+				}
+				break;
+			case '=':
+				expr_value_pop(stack,value);
+				break;
+			default:
+				for(int i = 0; i < variableValueCount;++i){
+					if( *posfix == variableValues[i].name ){
+						expr_value_push(stack,variableValues[i].value);
+						break;
+					}
+				}
+				break;
+		}
+		posfix++;
+	}
+	free(tmpFree);
+	Stack_Dispose(stack);
+	free(stack);
+	return true;
 }
 
 /* Konec c204.c */
