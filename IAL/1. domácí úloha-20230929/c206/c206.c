@@ -100,6 +100,7 @@ void DLL_Dispose( DLList *list ) {
 		DLL_Error();
 		return;
 	}
+	// go throw whole list
 	while(list->firstElement != NULL){
 		DLLElementPtr tmp = list->firstElement;
 		list->firstElement = list->firstElement->nextElement;
@@ -110,7 +111,7 @@ void DLL_Dispose( DLList *list ) {
 	list->activeElement = NULL;
 }
 
-// pomocna funkce pro vytvoreni noveho elementu
+// help function for init new element, was used several times
 DLLElementPtr InitNewElement(int data){
 	DLLElementPtr newElement = (DLLElementPtr)malloc(sizeof(struct DLLElement));
 	if(newElement == NULL){
@@ -252,7 +253,7 @@ void DLL_DeleteLast( DLList *list ) {
 	free(tmp);
 }
 
-//pomocna funkce pro DeleteAfter a DeletaBefore
+//help function for DeleteAfter and DeleteBefore
 void DeleteElement(DLLElementPtr element){
 	if(element == NULL) return;
 	if( element->previousElement != NULL ){
@@ -291,6 +292,7 @@ void DLL_DeleteBefore( DLList *list ) {
 	DeleteElement(list->activeElement->previousElement);
 }
 
+// help function for InsertBefore and InsertAfter,
 void InsertElement(DLLElementPtr newElement,DLLElementPtr first, DLLElementPtr last){
 	newElement->previousElement = first;
 	newElement->nextElement = last;

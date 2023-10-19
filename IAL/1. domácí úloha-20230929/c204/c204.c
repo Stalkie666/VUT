@@ -61,13 +61,17 @@ void untilLeftPar( Stack *stack, char *postfixExpression, unsigned *postfixExpre
 		}
 	char tmp;
 	while( !Stack_IsEmpty(stack) ){
+		// get char from stack
 		Stack_Top(stack,&tmp);
+		// pop top of stack
 		Stack_Pop(stack);
 		if(tmp == '(') break;
+		// add into posfix
 		postfixExpression[(*postfixExpressionLength)++] = tmp;
 	}
 }
 
+// my function for check priority of operators
 int getPriority(char c){
 	int priority = 0;
 	switch(c){
@@ -101,6 +105,7 @@ int getPriority(char c){
  */
 void doOperation( Stack *stack, char c, char *postfixExpression, unsigned *postfixExpressionLength ) {
 	
+	// work as is written in presentation
 	switch (c)
 	{
 		case '(':
@@ -119,6 +124,7 @@ void doOperation( Stack *stack, char c, char *postfixExpression, unsigned *postf
 			if(!Stack_IsEmpty(stack)) Stack_Top(stack,&tmp);
 			if( Stack_IsEmpty(stack) || tmp == '(' ||  getPriority(tmp) < getPriority(c) ) Stack_Push(stack,c);
 			else{
+				// adding operators from top of the stack into posfix as long as priority on top of the stack is equal or higher than curent operator
 				while(getPriority(tmp) >= getPriority(c) && !Stack_IsEmpty(stack)){
 					postfixExpression[(*postfixExpressionLength)++] = tmp;
 					Stack_Pop(stack);
@@ -180,28 +186,35 @@ void doOperation( Stack *stack, char c, char *postfixExpression, unsigned *postf
  * @returns znakový řetězec obsahující výsledný postfixový výraz
  */
 char *infix2postfix( const char *infixExpression ) {
+	// I don't trust to nobody
 	if(!infixExpression) return NULL;
+	// allocate array for postfix to return and check is suceeded
 	char * postfix = (char*)calloc(MAX_LEN,sizeof(char));
 	if(!postfix) return NULL;
 	unsigned postfixLen = 0;
 	Stack * stack = (Stack*)malloc(sizeof(Stack));
 	Stack_Init(stack);
 
+	//reading infix input string
 	int infixPos = 0;
 	for(char c = infixExpression[infixPos++]; c != '\0';c = infixExpression[infixPos++] ){
+		// add to posfix
 		if(    ( c >= '0' && c <= '9' )
 			|| ( c >= 'a' && c <= 'z' )
 			|| ( c >= 'A' && c <= 'Z' ) ){
 				postfix[postfixLen++] = c;
 			}
+		// operators - call doOperation function
 		else{
 			doOperation(stack,c,postfix,&postfixLen);
 		}
 	}
+
+	// cleaning
 	Stack_Dispose(stack);
 	free(stack);
 	
-	
+	// i trust to author that he send me only correct inputs
 	return postfix;
 }
 
@@ -218,6 +231,7 @@ char *infix2postfix( const char *infixExpression ) {
  * @param value hodnota k vložení na zásobník
  */
 void expr_value_push( Stack *stack, int value ) {
+	// just bit operations
 	Stack_Push(stack, (char)(value >> 0) );
 	Stack_Push(stack, (char)(value >> 4 ) );
 	Stack_Push(stack, (char)(value >> 8 ) );
@@ -241,6 +255,7 @@ void expr_value_pop( Stack *stack, int *value ) {
 	*value = 0;
 	for(int i = 4; i > 0; --i){
 		char tmp;
+		// just bit operations
 		if(!Stack_IsEmpty(stack)) Stack_Top(stack,&tmp);
 		*value |= ( (unsigned int)tmp << ( (i-1)*4));
 		Stack_Pop(stack);
@@ -279,6 +294,7 @@ bool eval( const char *infixExpression, VariableValue variableValues[], int vari
 
 	while( *posfix != '\0' ){
 		switch (*posfix){
+			// most of it same - diference only in what that two operands do
 			case '+':{
 				int tmp1 = 1,tmp2 = 1;
 				expr_value_pop(stack,&tmp1);
@@ -311,10 +327,12 @@ bool eval( const char *infixExpression, VariableValue variableValues[], int vari
 				expr_value_push(stack,tmp1);
 				}
 				break;
+			// get return value from top of the stacl
 			case '=':
 				expr_value_pop(stack,value);
 				break;
 			default:
+				// get values from table and add it on top of the stack
 				for(int i = 0; i < variableValueCount;++i){
 					if( *posfix == variableValues[i].name ){
 						expr_value_push(stack,variableValues[i].value);
@@ -325,6 +343,7 @@ bool eval( const char *infixExpression, VariableValue variableValues[], int vari
 		}
 		posfix++;
 	}
+	// cleaning mess
 	free(tmpFree);
 	Stack_Dispose(stack);
 	free(stack);
