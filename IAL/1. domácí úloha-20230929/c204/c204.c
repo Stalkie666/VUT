@@ -232,11 +232,11 @@ char *infix2postfix( const char *infixExpression ) {
  */
 void expr_value_push( Stack *stack, int value ) {
 	// just bit operations
-	Stack_Push(stack, (char)(value >> 0) );
-	Stack_Push(stack, (char)(value >> 4 ) );
-	Stack_Push(stack, (char)(value >> 8 ) );
-	Stack_Push(stack, (char)(value >> 12 ) );
 	
+	Stack_Push(stack, (char)(value >> 0) );
+	Stack_Push(stack, (char)(value >> 8 ) );
+	Stack_Push(stack, (char)(value >> 16 ) );
+	Stack_Push(stack, (char)(value >> 24 ) );
 }
 
 /**
@@ -252,12 +252,14 @@ void expr_value_push( Stack *stack, int value ) {
  *   výsledné celočíselné hodnoty z vrcholu zásobníku
  */
 void expr_value_pop( Stack *stack, int *value ) {
+	
 	*value = 0;
+	unsigned int mask = 0xff;
 	for(int i = 4; i > 0; --i){
-		char tmp;
+		char tmp = 0;
 		// just bit operations
 		if(!Stack_IsEmpty(stack)) Stack_Top(stack,&tmp);
-		*value |= ( (unsigned int)tmp << ( (i-1)*4));
+		*value |= ( (int)tmp << ( (i-1)*8)) & ( mask << ((i-1)*8) );
 		Stack_Pop(stack);
 	}
 }
@@ -323,6 +325,13 @@ bool eval( const char *infixExpression, VariableValue variableValues[], int vari
 				int tmp1 = 1, tmp2 = 1;
 				expr_value_pop(stack,&tmp1);
 				expr_value_pop(stack,&tmp2);
+				if( tmp1 == 0 ){
+					// clean mess and return false
+					free(tmpFree);
+					Stack_Dispose(stack);
+					free(stack);
+					return false;
+				}
 				tmp1 = tmp2 / tmp1;
 				expr_value_push(stack,tmp1);
 				}
