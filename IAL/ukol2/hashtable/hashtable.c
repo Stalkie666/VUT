@@ -32,6 +32,8 @@ int get_hash(char *key) {
  * Inicializace tabulky — zavolá sa před prvním použitím tabulky.
  */
 void ht_init(ht_table_t *table) {
+  for(int i = 0; i < HT_SIZE; ++i)
+    *(*table + i) = NULL;
 }
 
 /*
@@ -41,6 +43,10 @@ void ht_init(ht_table_t *table) {
  * hodnotu NULL.
  */
 ht_item_t *ht_search(ht_table_t *table, char *key) {
+  int index = get_hash(key);
+  for(ht_item_t * item = *(*table + index); item != NULL; item = item->next){
+    if(strcmp( item->key,key ) == 0) return item;
+  }
   return NULL;
 }
 
@@ -53,6 +59,28 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
  * synonym zvolte nejefektivnější možnost a vložte prvek na začátek seznamu.
  */
 void ht_insert(ht_table_t *table, char *key, float value) {
+  ht_item_t * tmp = ht_search(table,key);
+  if( !tmp ){
+    tmp = (ht_item_t*)malloc(sizeof(ht_item_t));
+    tmp->key =(char*)calloc((strlen(key)+1),sizeof(char));
+    strcpy(tmp->key,key);
+    tmp->value = value;
+    tmp->next = NULL;
+    int index = get_hash(key);
+    ht_item_t * item = *(*table + index);
+    if( item == NULL) *(*table + index) = tmp;
+    else{
+      while (1)
+      {
+        if(item->next == NULL){
+          item->next = tmp;
+          break;
+        }
+        item = item->next;
+      }
+      
+    }
+  }
 }
 
 /*
@@ -64,7 +92,7 @@ void ht_insert(ht_table_t *table, char *key, float value) {
  * Při implementaci využijte funkci ht_search.
  */
 float *ht_get(ht_table_t *table, char *key) {
-  return NULL;
+  return &(ht_search(table,key)->value);
 }
 
 /*
