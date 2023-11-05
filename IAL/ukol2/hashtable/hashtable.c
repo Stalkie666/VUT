@@ -104,6 +104,26 @@ float *ht_get(ht_table_t *table, char *key) {
  * Při implementaci NEPOUŽÍVEJTE funkci ht_search.
  */
 void ht_delete(ht_table_t *table, char *key) {
+  size_t index = get_hash(key);
+  ht_item_t * current = *(*table + index);
+  ht_item_t * previous = NULL;
+
+  while( current != NULL ){
+    if( strcmp(current->key,key)==0 ){
+      if( current == *(*table + index) ){
+        *(*table + index) = current->next;
+      }
+      else{
+        previous->next = current->next;
+      }
+      free(current->key);
+      free(current);
+      return;
+    }
+    previous = current;
+    current = current->next;
+  }
+  return;
 }
 
 /*
@@ -113,4 +133,16 @@ void ht_delete(ht_table_t *table, char *key) {
  * inicializaci.
  */
 void ht_delete_all(ht_table_t *table) {
+  for(int i = 0; i < HT_SIZE; ++i){
+    ht_item_t * item = *(*table + i);
+
+    while(item != NULL){
+      ht_item_t * tmp = item;
+      item = item->next;
+      if( tmp->key != NULL ) free(tmp->key);
+      if( tmp != NULL ) free(tmp);
+    }
+
+    *(*table + i) = NULL;
+  }
 }
