@@ -70,16 +70,12 @@ void ht_insert(ht_table_t *table, char *key, float value) {
     ht_item_t * item = *(*table + index);
     if( item == NULL) *(*table + index) = tmp;
     else{
-      while (1)
-      {
-        if(item->next == NULL){
-          item->next = tmp;
-          break;
-        }
-        item = item->next;
-      }
-      
+      tmp->next = item;
+      *(*table + index) = tmp;
     }
+  }
+  else{
+    tmp->value = value;
   }
 }
 

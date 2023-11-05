@@ -2,6 +2,10 @@
 #include "test_util.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+#include <float.h>
+#include <math.h>
 
 #define INSERT_TEST_DATA(TABLE)                                                \
   ht_insert_many(TABLE, TEST_DATA, sizeof(TEST_DATA) / sizeof(TEST_DATA[0]));
@@ -27,18 +31,20 @@ ENDTEST
 
 TEST(test_search_nonexist, "Search for a non-existing item")
 ht_init(test_table);
-ht_search(test_table, "Ethereum");
+assert( ht_search(test_table, "Ethereum") == NULL);
 ENDTEST
 
 TEST(test_insert_simple, "Insert a new item")
 ht_init(test_table);
 ht_insert(test_table, "Ethereum", 3208.67);
+assert(strcmp(ht_search(test_table,"Ethereum")->key,"Ethereum") == 0 );
 ENDTEST
 
 TEST(test_search_exist, "Search for an existing item")
 ht_init(test_table);
 ht_insert(test_table, "Ethereum", 3208.67);
-ht_search(test_table, "Ethereum");
+ht_item_t * test1 = ht_search(test_table, "Ethereum");
+assert( strcmp(test1->key,"Ethereum") == 0 );
 ENDTEST
 
 TEST(test_insert_many, "Insert many new items")
@@ -49,25 +55,29 @@ ENDTEST
 TEST(test_search_collision, "Search for an item with colliding hash")
 ht_init(test_table);
 INSERT_TEST_DATA(test_table)
-ht_search(test_table, "Terra");
+ht_item_t * test1 = ht_search(test_table, "Terra");
+assert( strcmp(test1->key,"Terra") == 0 );
 ENDTEST
 
 TEST(test_insert_update, "Update an item")
 ht_init(test_table);
 INSERT_TEST_DATA(test_table)
 ht_insert(test_table, "Ethereum", 12.34);
+ht_item_t * test1 = ht_search(test_table, "Ethereum");
+assert( fabs(test1->value - 12.34) <= (FLT_EPSILON * 1000) );
 ENDTEST
 
 TEST(test_get, "Get an item's value")
 ht_init(test_table);
 INSERT_TEST_DATA(test_table)
-ht_get(test_table, "Ethereum");
+assert( fabs( *ht_get(test_table, "Ethereum") - 3208.67) <= (FLT_EPSILON * 1000) );
 ENDTEST
 
 TEST(test_delete, "Delete an item")
 ht_init(test_table);
 INSERT_TEST_DATA(test_table)
 ht_delete(test_table, "Terra");
+assert( ht_search(test_table,"Terra") == NULL );
 ENDTEST
 
 TEST(test_delete_all, "Delete all the items")
