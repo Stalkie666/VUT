@@ -119,8 +119,8 @@ void bst_delete(bst_node_t **tree, char key) {
     }
     return;
   }
-  bst_delete( &(*tree)->left,key );
-  bst_delete( &(*tree)->right,key );
+  else if( key < (*tree)->key ) bst_delete( &(*tree)->left,key );
+  else bst_delete( &(*tree)->right,key );
 }
 
 /*
