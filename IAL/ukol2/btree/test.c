@@ -2,6 +2,7 @@
 #include "test_util.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 const int base_data_count = 15;
 const char base_keys[] = {'H', 'D', 'L', 'B', 'F', 'J', 'N', 'A',
@@ -34,12 +35,14 @@ ENDTEST
 TEST(test_tree_search_empty, "Search in an empty tree (A)")
 bst_init(&test_tree);
 int result;
-bst_search(test_tree, 'A', &result);
+assert( bst_search(test_tree, 'A', &result) == false);
 ENDTEST
 
 TEST(test_tree_insert_root, "Insert an item (H,1)")
 bst_init(&test_tree);
 bst_insert(&test_tree, 'H', 1);
+int tmp;
+assert( bst_search(test_tree,'H',&tmp) && tmp == 1 );
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -47,15 +50,18 @@ TEST(test_tree_search_root, "Search in a single node tree (H)")
 bst_init(&test_tree);
 bst_insert(&test_tree, 'H', 1);
 int result;
-bst_search(test_tree, 'H', &result);
+assert( bst_search(test_tree, 'H', &result) && result == 1 );
 bst_print_tree(test_tree);
 ENDTEST
 
 TEST(test_tree_update_root, "Update a node in a single node tree (H,1)->(H,8)")
 bst_init(&test_tree);
 bst_insert(&test_tree, 'H', 1);
+int result;
+assert( bst_search(test_tree, 'H', &result) && result == 1 );
 bst_print_tree(test_tree);
 bst_insert(&test_tree, 'H', 8);
+assert( bst_search(test_tree, 'H', &result) && result == 8 );
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -69,7 +75,7 @@ TEST(test_tree_search, "Search for an item deeper in the tree (A)")
 bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 int result;
-bst_search(test_tree, 'A', &result);
+assert( bst_search(test_tree, 'A', &result) && result == 1);
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -77,7 +83,7 @@ TEST(test_tree_search_missing, "Search for a missing key (X)")
 bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 int result;
-bst_search(test_tree, 'X', &result);
+assert( !bst_search(test_tree, 'X', &result) );
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -85,7 +91,10 @@ TEST(test_tree_delete_leaf, "Delete a leaf node (A)")
 bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 bst_print_tree(test_tree);
+int tmp;
+assert( bst_search(test_tree,'A',&tmp) && tmp == 1);
 bst_delete(&test_tree, 'A');
+assert( !bst_search(test_tree,'A',&tmp) );
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -95,7 +104,11 @@ bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 bst_insert_many(&test_tree, additional_keys, additional_values,
                 additional_data_count);
 bst_print_tree(test_tree);
+int tmp;
+assert( bst_search(test_tree,'R',&tmp) && tmp == 10 );
 bst_delete(&test_tree, 'R');
+assert( !bst_search(test_tree,'R',&tmp));
+assert( bst_search(test_tree,'X',&tmp) && tmp == 10);
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -107,7 +120,11 @@ bst_insert_many(&test_tree, additional_keys, additional_values,
                 additional_data_count);
 
 bst_print_tree(test_tree);
+int tmp;
+assert( bst_search(test_tree,'X',&tmp) && tmp == 10);
 bst_delete(&test_tree, 'X');
+assert( !bst_search(test_tree,'X',&tmp));
+assert( bst_search(test_tree,'R',&tmp) && tmp == 10);
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -118,7 +135,14 @@ bst_insert_many(&test_tree, additional_keys, additional_values,
                 additional_data_count);
 
 bst_print_tree(test_tree);
+int tmp;
+assert( bst_search(test_tree,'L',&tmp) && tmp == 12);
 bst_delete(&test_tree, 'L');
+assert( !bst_search(test_tree,'L',&tmp));
+assert( bst_search(test_tree,'R',&tmp) && tmp == 10);
+assert( bst_search(test_tree,'H',&tmp) && tmp == 8);
+assert( bst_search(test_tree,'O',&tmp) && tmp == 16);
+assert( bst_search(test_tree,'Q',&tmp) && tmp == 10);
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -126,7 +150,10 @@ TEST(test_tree_delete_missing, "Delete a node that doesn't exist (U)")
 bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 bst_print_tree(test_tree);
+int tmp;
+assert( !bst_search(test_tree,'U',&tmp));
 bst_delete(&test_tree, 'U');
+assert( !bst_search(test_tree,'U',&tmp));
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -134,7 +161,11 @@ TEST(test_tree_delete_root, "Delete the root node (H)")
 bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 bst_print_tree(test_tree);
+int tmp;
+assert( bst_search(test_tree,'H',&tmp) && tmp == 8);
 bst_delete(&test_tree, 'H');
+assert( !bst_search(test_tree,'H',&tmp));
+assert( bst_search(test_tree,'D',&tmp) && tmp == 4);
 bst_print_tree(test_tree);
 ENDTEST
 
@@ -143,6 +174,7 @@ bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 bst_print_tree(test_tree);
 bst_dispose(&test_tree);
+assert( test_tree == NULL );
 bst_print_tree(test_tree);
 ENDTEST
 
