@@ -19,9 +19,6 @@
  */
 void bst_init(bst_node_t **tree) {
   *tree = NULL;
-  //*tree = (bst_node_t*)malloc(sizeof(bst_node_t));
-  //(*tree)->left = NULL;
-  //(*tree)->right = NULL;
 }
 
 /*
@@ -62,12 +59,8 @@ void bst_insert(bst_node_t **tree, char key, int value) {
     return;
   }
 
-  if( (*tree)->key == key ){
-    (*tree)->value = value;
-    return;
-  }
-  
-  if( (*tree)->key < key ) bst_insert( &(*tree)->left, key, value );
+  if( (*tree)->key == key ) (*tree)->value = value;
+  else if( key < (*tree)->key ) bst_insert( &(*tree)->left, key, value );
   else bst_insert( &(*tree)->right, key, value );
 }
 
@@ -155,6 +148,10 @@ void bst_dispose(bst_node_t **tree) {
  * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
  */
 void bst_preorder(bst_node_t *tree, bst_items_t *items) {
+  if(tree == NULL) return;
+  bst_add_node_to_items(tree,items);
+  bst_preorder(tree->left,items);
+  bst_preorder(tree->right,items);
 }
 
 /*
@@ -165,6 +162,10 @@ void bst_preorder(bst_node_t *tree, bst_items_t *items) {
  * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
  */
 void bst_inorder(bst_node_t *tree, bst_items_t *items) {
+  if(tree == NULL) return;
+  bst_inorder(tree->left,items);
+  bst_add_node_to_items(tree,items);
+  bst_inorder(tree->right,items);
 }
 
 /*
@@ -175,4 +176,8 @@ void bst_inorder(bst_node_t *tree, bst_items_t *items) {
  * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
  */
 void bst_postorder(bst_node_t *tree, bst_items_t *items) {
+  if(tree == NULL) return;
+  bst_postorder(tree->left,items);
+  bst_postorder(tree->right,items);
+  bst_add_node_to_items(tree,items);
 }
