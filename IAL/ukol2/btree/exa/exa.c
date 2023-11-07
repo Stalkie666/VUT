@@ -32,6 +32,19 @@
  * Pro implementaci si můžete v tomto souboru nadefinovat vlastní pomocné funkce.
 */
 void letter_count(bst_node_t **tree, char *input) {
+    bst_init(tree);
+    int value;
+    char tmp;
+    while( *input != '\0' ){
+        tmp = *input;
+        if( tmp >= 'A' && tmp <= 'Z' ) tmp += 32; 
+        if( !((tmp >= 'a' && tmp <= 'z') || (tmp >= 'A' &&  tmp <= 'Z') || tmp == ' ' ) )
+            tmp = '_';
+        if( bst_search(*tree,tmp,&value) ) ++value;
+        else value = 1;
+        bst_insert(tree,tmp,value);
+        input++;
+    }
 }
 
 
@@ -47,4 +60,5 @@ void letter_count(bst_node_t **tree, char *input) {
  * Pro implementaci si můžete v tomto souboru nadefinovat vlastní pomocné funkce. Není nutné, aby funkce fungovala *in situ* (in-place).
 */
 void bst_balance(bst_node_t **tree) {
+    // mozna nekdy - neni cas
 }
