@@ -48,6 +48,8 @@ bool bst_search(bst_node_t *tree, char key, int *value) {
   return false;
 }
 
+
+// Pomocna funkce k vytvoreni noveho node
 bst_node_t * allocNode(char key, int value){
   bst_node_t * retVal = (bst_node_t*)malloc(sizeof(bst_node_t));
   retVal->key = key;
@@ -271,6 +273,11 @@ void bst_dispose(bst_node_t **tree) {
   *tree = NULL;
 
 }
+
+
+/*
+  DISCLAIMER - Pokud mi tohle chytnete jako plagiat tak se jedna o presny opis ze slidu z prednasek, konkretne 04_Stromy - Slidy 16 az 21
+*/
 
 /*
  * Pomocná funkce pro iterativní preorder.
