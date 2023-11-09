@@ -207,12 +207,16 @@ ENDTEST
 TEST(test_letter_count, "Count letters");
 bst_init(&test_tree);
 letter_count(&test_tree, "abBcCc_ 123 *");
+//letter_count(&test_tree, " _123abBcCc *");
+//letter_count(&test_tree, "abdawdgtgcdefadawdghijadawklmnopdsfsgrstuvdawdawwxyz123124");
 bst_print_tree(test_tree);
 ENDTEST
 
 TEST(test_balance, "Count letters and balance");
 bst_init(&test_tree);
 letter_count(&test_tree, "abBcCc_ 123 *");
+//letter_count(&test_tree, " _123abBcCc *");
+//letter_count(&test_tree, "abdawdgtgcdefadawdghijadawklmnopdsfsgrstuvdawdawwxyz123124");
 bst_balance(&test_tree);
 bst_print_tree(test_tree);
 ENDTEST
