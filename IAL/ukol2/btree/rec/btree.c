@@ -51,6 +51,7 @@ bool bst_search(bst_node_t *tree, char key, int *value) {
  * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
  */
 void bst_insert(bst_node_t **tree, char key, int value) {
+  // vytvareni noveho prvku
   if( (*tree) == NULL ){
     *tree = (bst_node_t*)malloc(sizeof(bst_node_t));
     (*tree)->key = key;
@@ -58,9 +59,11 @@ void bst_insert(bst_node_t **tree, char key, int value) {
     (*tree)->left = (*tree)->right = NULL;
     return;
   }
-
+  //update stavajiciho itemu
   if( (*tree)->key == key ) (*tree)->value = value;
+  //klic je mensi nez klic rootu: a leva
   else if( key < (*tree)->key ) bst_insert( &(*tree)->left, key, value );
+  //jinak: a prava
   else bst_insert( &(*tree)->right, key, value );
 }
 
@@ -78,6 +81,7 @@ void bst_insert(bst_node_t **tree, char key, int value) {
  * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
  */
 void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
+  // vymena a uvolneni pokud v pravo uz nic neni
   if( (*tree)->right == NULL ){
     target->key = (*tree)->key;
     target->value = (*tree)->value;
@@ -86,6 +90,7 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
     free(tmp);
     return;
   }
+  // pokracovat do praveho syna
   bst_replace_by_rightmost(target,&(*tree)->right);
 }
 
@@ -103,23 +108,30 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
  * použití vlastních pomocných funkcí.
  */
 void bst_delete(bst_node_t **tree, char key) {
+  // neexistuje, navrat zpet
   if(*tree == NULL ) return;
+  // existuje, mazu ho
   if( (*tree)->key == key ){
     bst_node_t *tmp = *tree;
+    // prava cast neexistuje, prirazuju levou
     if(  !(*tree)->right ){
       *tree = (*tree)->left;
       free(tmp);
     }
+    // leva cast neexistuje, prirazju pravou
     else if( !(*tree)->left && (*tree)->right ){
        *tree = (*tree)->right;
        free(tmp);
     }
+    // existuje leva i prava, vymenuju podle zadani
     else{
       bst_replace_by_rightmost(tmp, &(*tree)->left );
     }
     return;
   }
+  // klid je mensi: a leva
   else if( key < (*tree)->key ) bst_delete( &(*tree)->left,key );
+  // jinak: a prava
   else bst_delete( &(*tree)->right,key );
 }
 
@@ -133,10 +145,15 @@ void bst_delete(bst_node_t **tree, char key) {
  * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
  */
 void bst_dispose(bst_node_t **tree) {
+  // neni co uvolnovat
   if( *tree == NULL ) return;
+  // doleva
   bst_dispose( &(*tree)->left );
+  // doprava
   bst_dispose( &(*tree)->right );
+  // uvolnit se
   free(*tree);
+  // nastavit se na NULL
   *tree = NULL;
 }
 

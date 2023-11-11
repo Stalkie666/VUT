@@ -34,6 +34,7 @@ void bst_init(bst_node_t **tree) {
  */
 bool bst_search(bst_node_t *tree, char key, int *value) {
   bst_node_t * tmp = tree;
+  // pruchod stromem dokud nenajdu prvek nebo nenarazim na NULL
   while(1){
     if( tmp == NULL ) break;
     if( tmp->key == key ){
@@ -49,7 +50,7 @@ bool bst_search(bst_node_t *tree, char key, int *value) {
 }
 
 
-// Pomocna funkce k vytvoreni noveho node
+// Pomocna funkce k vytvoreni noveho node - vytvoreno ciste z duvodu zprehledneni kodu, prosim nepenalizovat
 bst_node_t * allocNode(char key, int value){
   bst_node_t * retVal = (bst_node_t*)malloc(sizeof(bst_node_t));
   retVal->key = key;
@@ -71,27 +72,37 @@ bst_node_t * allocNode(char key, int value){
  */
 void bst_insert(bst_node_t **tree, char key, int value) {
   if( (*tree) == NULL ){
+    // uziti pomocne funkce z duvou opisovani kodu - nijak to nezlehcuje zadani, ale prinasi to prehlednost
     *tree = allocNode(key,value);
     return;
   }
   bst_node_t * tmp = *tree;
   while(1){
+    // key nalezen, prepsat hodnotu
     if( tmp->key == key ){
       tmp->value = value;
       return;
     }
+    // klic je mensi nez root, jdu doleva
     else if(key < tmp->key){
+      // leva null, vytvoreni novaho potomka
       if(tmp->left == NULL){
+        // uziti pomocne funkce z duvou opisovani kodu - nijak to nezlehcuje zadani, ale prinasi to prehlednost
         tmp->left = allocNode(key,value);
         return;
       }
+      // presun do leveho potomka
       else tmp = tmp->left;
     }
+    // klic vetsi nez root, jdu doprava
     else{
+      //prava null, vytvoreni noveho potomka
       if( tmp->right == NULL ){
+        // uziti pomocne funkce z duvou opisovani kodu - nijak to nezlehcuje zadani, ale prinasi to prehlednost
         tmp->right = allocNode(key,value);
         return;
       }
+      // presun do leveho potomka
       else tmp = tmp->right;
     }
   }
@@ -112,6 +123,7 @@ void bst_insert(bst_node_t **tree, char key, int value) {
  * Funkci implementujte iterativně bez použití vlastních pomocných funkcí.
  */
 void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) { 
+  // kontrola jestle nebudu presouvat uz root
   if( (*tree)->right == NULL ){
     target->key = (*tree)->key;
     target->value = (*tree)->value;
@@ -121,12 +133,14 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
     return;
   }
 
-
   bst_node_t * tmp = *tree;
+  //proskakani do nejvice praveho
   while(1){
+    // nalezeni nejvice praveho a prekopirovani dat, nutno delat z urovne o jedna vyssi
     if( tmp->right->right == NULL ){
       target->key = tmp->right->key;
       target->value = tmp->right->value;
+      // frm == for remove
       bst_node_t * frm = tmp->right;
       tmp->right = tmp->right->left;
       free(frm);
@@ -151,13 +165,17 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
  * použití vlastních pomocných funkcí.
  */
 void bst_delete(bst_node_t **tree, char key) {
+  // kontrola prazdneho stromu
   if(*tree == NULL) return;
+  // kontrola jestli neni mazany prvek uz na vrchu
   if( (*tree)->key == key ){
+    // prevek nema potomky
     if( !(*tree)->left && !(*tree)->right ){
       free(*tree);
       *tree = NULL;
       return;
     }
+    // ma leveho
     else if( !(*tree)->right ){
       bst_node_t * tmp = (*tree)->left;
       (*tree)->key = tmp->key;
@@ -167,6 +185,7 @@ void bst_delete(bst_node_t **tree, char key) {
       free(tmp);
       return;
     }
+    // ma praveho
     else if( !(*tree)->left){
       bst_node_t * tmp = (*tree)->right;
       (*tree)->key = tmp->key;
@@ -176,26 +195,33 @@ void bst_delete(bst_node_t **tree, char key) {
       free(tmp);
       return;
     }
+    // ma oba
     else{
       bst_replace_by_rightmost(*tree,&(*tree)->left);
       return;
     }
   }
 
+
+  // to same co predtim, jen trochu upravene
   bst_node_t * previous = *tree;
   bst_node_t * current;
   if(key < previous->key)current = previous->left;
   else current = previous->right;
 
   while(1){
+    // prvek nenalezen
     if(current == NULL) return;
+    // prvek nalezen
     if(current->key == key){
+      // bezdetny
       if( !current->left && !current->right){
         if( previous->left->key == current->key ) previous->left = NULL;
         else previous->right = NULL;
         free(current);
         return;
       }
+      // ma jen leveho potomka
       else if(!current->right){
         bst_node_t * tmp = current->left;
         current->key = tmp->key;
@@ -205,6 +231,7 @@ void bst_delete(bst_node_t **tree, char key) {
         free(tmp);
         return;
       }
+      // jen praveho potomka
       else if(!current->left){
         bst_node_t * tmp = current->right;
         current->key = tmp->key;
@@ -214,14 +241,17 @@ void bst_delete(bst_node_t **tree, char key) {
         free(tmp);
         return;
       }
+      // ma oba potomky
       else{
         bst_replace_by_rightmost(current,&(current)->left);
       }
     }
+    // klic je mensi nez root
     else if(key < current->key){
       previous = current;
       current = current->left;
     }
+    // klic je vesi nez root
     else{
       previous = current;
       current = current->right;
@@ -241,8 +271,10 @@ void bst_delete(bst_node_t **tree, char key) {
  * vlastních pomocných funkcí.
  */
 void bst_dispose(bst_node_t **tree) {
+  // tree je prazdny
   if(*tree == NULL) return;
 
+  // priprava zasobniku
   stack_bst_t tmpStack;
   stack_bst_t * stack = &tmpStack;
   stack_bst_init(stack);
@@ -250,6 +282,7 @@ void bst_dispose(bst_node_t **tree) {
   bst_node_t * current = *tree;
   bst_node_t * tmp;
 
+  // opsano z prednasky
   while(1){
     if( !current->left && !current->right ){
       free(current);
@@ -269,9 +302,8 @@ void bst_dispose(bst_node_t **tree) {
       tmp->left = NULL;
     }
   }
-
+  // nastaveni stromu na init
   *tree = NULL;
-
 }
 
 
@@ -289,6 +321,7 @@ void bst_dispose(bst_node_t **tree) {
  * vlastních pomocných funkcí.
  */
 void bst_leftmost_preorder(bst_node_t *tree, stack_bst_t *to_visit, bst_items_t *items) {
+  // vzato z prednasky
   while( tree != NULL ){
     stack_bst_push(to_visit,tree);
     bst_add_node_to_items(tree,items);
@@ -305,10 +338,11 @@ void bst_leftmost_preorder(bst_node_t *tree, stack_bst_t *to_visit, bst_items_t 
  * zásobníku uzlů a bez použití vlastních pomocných funkcí.
  */
 void bst_preorder(bst_node_t *tree, bst_items_t *items) {
+  // init zasobniku
   stack_bst_t tmpStack;
   stack_bst_t * stack = &tmpStack;
   stack_bst_init(stack);
-
+  // vzato z prednasky
   bst_leftmost_preorder(tree,stack,items);
   while( !stack_bst_empty(stack) ){
     tree = stack_bst_pop(stack);
@@ -326,6 +360,7 @@ void bst_preorder(bst_node_t *tree, bst_items_t *items) {
  * vlastních pomocných funkcí.
  */
 void bst_leftmost_inorder(bst_node_t *tree, stack_bst_t *to_visit) {
+  // vzato z prednasky
   while( tree != NULL ){
     stack_bst_push(to_visit,tree);
     tree = tree->left;
@@ -341,10 +376,11 @@ void bst_leftmost_inorder(bst_node_t *tree, stack_bst_t *to_visit) {
  * zásobníku uzlů a bez použití vlastních pomocných funkcí.
  */
 void bst_inorder(bst_node_t *tree, bst_items_t *items) {
+  // init zasobniku
   stack_bst_t tmpStack;
   stack_bst_t * stack = &tmpStack;
   stack_bst_init(stack);
-
+  // vzato z prednasky
   bst_leftmost_inorder(tree,stack);
   while( !stack_bst_empty(stack) ){
     tree = stack_bst_pop(stack);
@@ -365,6 +401,7 @@ void bst_inorder(bst_node_t *tree, bst_items_t *items) {
  */
 void bst_leftmost_postorder(bst_node_t *tree, stack_bst_t *to_visit,
                             stack_bool_t *first_visit) {
+                              // vzato z prednasky
                               while (tree != NULL){
                                 stack_bst_push(to_visit,tree);
                                 stack_bool_push(first_visit,tree);
@@ -382,6 +419,7 @@ void bst_leftmost_postorder(bst_node_t *tree, stack_bst_t *to_visit,
  * zásobníku uzlů a bool hodnot a bez použití vlastních pomocných funkcí.
  */
 void bst_postorder(bst_node_t *tree, bst_items_t *items) {
+  // priprava zasobniku a prommene - vzato z prednasky
   bool fromLeft;
   stack_bst_t tmpStack;
   stack_bst_t * stack = &tmpStack;
@@ -390,7 +428,7 @@ void bst_postorder(bst_node_t *tree, bst_items_t *items) {
   stack_bool_t tmpBool;
   stack_bool_t * boolStack = &tmpBool;
   stack_bool_init(boolStack);
-
+  // vzato z prednasky
   bst_leftmost_postorder(tree,stack,boolStack);
   while( !stack_bst_empty(stack) ){
     tree = stack_bst_top(stack);

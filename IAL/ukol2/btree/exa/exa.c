@@ -35,14 +35,22 @@ void letter_count(bst_node_t **tree, char *input) {
     bst_init(tree);
     int value;
     char tmp;
+    // cist vstup do konce
     while( *input != '\0' ){
+        // priradit stavajici char
         tmp = *input;
+        // dat na mala pismenka, pokud jsou velka
         if( tmp >= 'A' && tmp <= 'Z' ) tmp += 32; 
+        // nastavit na '_' pokud se nejedna o a..zA..Z nebo ' ' 
         if( !((tmp >= 'a' && tmp <= 'z') || (tmp >= 'A' &&  tmp <= 'Z') || tmp == ' ' ) )
             tmp = '_';
+        // najit prvek, pokud existuje a zvetsit hodnotu value
         if( bst_search(*tree,tmp,&value) ) ++value;
+        // nebo pro novy prvek nastavit value na 1
         else value = 1;
+        // vlozit novy prvek nebo upravit hodnotu stavajiciho prvku
         bst_insert(tree,tmp,value);
+        // na dalsi char
         input++;
     }
 }

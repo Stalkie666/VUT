@@ -32,6 +32,7 @@ int get_hash(char *key) {
  * Inicializace tabulky — zavolá sa před prvním použitím tabulky.
  */
 void ht_init(ht_table_t *table) {
+  // vynulovani pole
   for(int i = 0; i < HT_SIZE; ++i)
     *(*table + i) = NULL;
 }
@@ -44,6 +45,7 @@ void ht_init(ht_table_t *table) {
  */
 ht_item_t *ht_search(ht_table_t *table, char *key) {
   int index = get_hash(key);
+  // zkousim hledat, pokud najdu vratim odkaz na prvek a jinak NULL
   for(ht_item_t * item = *(*table + index); item != NULL; item = item->next){
     if(strcmp( item->key,key ) == 0) return item;
   }
@@ -59,10 +61,13 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
  * synonym zvolte nejefektivnější možnost a vložte prvek na začátek seznamu.
  */
 void ht_insert(ht_table_t *table, char *key, float value) {
+  // najit prvek, pokud neni vytvorit
   ht_item_t * tmp = ht_search(table,key);
   if( !tmp ){
+    //alokace pameti
     tmp = (ht_item_t*)malloc(sizeof(ht_item_t));
     tmp->key =(char*)calloc((strlen(key)+1),sizeof(char));
+    //kopirovani dat
     strcpy(tmp->key,key);
     tmp->value = value;
     tmp->next = NULL;
@@ -70,11 +75,13 @@ void ht_insert(ht_table_t *table, char *key, float value) {
     ht_item_t * item = *(*table + index);
     if( item == NULL) *(*table + index) = tmp;
     else{
+      // vlozeni itemu na zacatek seznamu
       tmp->next = item;
       *(*table + index) = tmp;
     }
   }
   else{
+    // aktualizace hodnoty
     tmp->value = value;
   }
 }
@@ -88,6 +95,7 @@ void ht_insert(ht_table_t *table, char *key, float value) {
  * Při implementaci využijte funkci ht_search.
  */
 float *ht_get(ht_table_t *table, char *key) {
+  // vracim odkaz na hodnotu
   return &(ht_search(table,key)->value);
 }
 
@@ -100,6 +108,7 @@ float *ht_get(ht_table_t *table, char *key) {
  * Při implementaci NEPOUŽÍVEJTE funkci ht_search.
  */
 void ht_delete(ht_table_t *table, char *key) {
+  // ziskat hash... vzato z projektu do IJC a mirne upraveno, fakt nevim sco sem psat
   size_t index = get_hash(key);
   ht_item_t * current = *(*table + index);
   ht_item_t * previous = NULL;
@@ -129,6 +138,7 @@ void ht_delete(ht_table_t *table, char *key) {
  * inicializaci.
  */
 void ht_delete_all(ht_table_t *table) {
+  // princip - prolezt cele pole a vsechny polozky spojovych seznamu mazat za sebou
   for(int i = 0; i < HT_SIZE; ++i){
     ht_item_t * item = *(*table + i);
 
@@ -138,7 +148,7 @@ void ht_delete_all(ht_table_t *table) {
       if( tmp->key != NULL ) free(tmp->key);
       if( tmp != NULL ) free(tmp);
     }
-
+    // prohlasit item pole za prazdny
     *(*table + i) = NULL;
   }
 }
