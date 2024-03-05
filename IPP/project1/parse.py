@@ -5,7 +5,10 @@ import re
 
 #--help
 def help():
-    print("printuju help")
+    print("###################### Parser.py ######################")
+    print("This script load input from standard input (stdin), convert input if is correct according to IPPcore24 language and write it's XML representations on standard output (stdout)")
+    print("Arguments:")
+    print("--help : print this info")
     sys.exit(0)
 
 def getArrOfStrings(line):
@@ -15,7 +18,12 @@ def getArrOfStrings(line):
 def varXML  (instruction_node,argN,data):
     if str(data).split('@',1)[0] in ['GF','TF','LF']:
         node = ET.SubElement(instruction_node,argN,type='var')
-        node.text = data
+        patern = r'^[a-zA-Z0-9_\-&%*$!?]+$'
+        if re.search(patern,str(data).split('@',1)[1]):
+            node.text = data
+        else:
+            print(str(data).split('@',1)[1])
+            sys.exit(23)
     else:
         sys.exit(23)
 
@@ -29,9 +37,7 @@ def symbXML (instruction_node,argN,data):
             print(str(data).split('@',1)[1])
             sys.exit(23)
     elif str(data).split('@',1)[0] in ['int','string','bool','nil']:
-        #zde jeste kontrolovat ze kdyz je to int tak tam fakt cpu int atd
         node = ET.SubElement(instruction_node,argN,type=str(data).split('@',1)[0])
-        #node.text = str(data).split('@',1)[1]
         type = str(data).split('@',1)[0]
         constant = str(data).split('@',1)[1]
         if type == 'int' and re.search(r'^[-]?[0-9]+$',constant):
@@ -143,9 +149,18 @@ if n > 1:
         print("Unknown argument")
         sys.exit(10)
 
-firstLine = sys.stdin.readline().split("#",1)[0].split()
-if  len(firstLine) != 1 and firstLine[0].lower() != ".ippcode24":
-    print("Spatna hlavicka: " + firstLine.lower())
+hasHeader = False
+for firstLine in sys.stdin:
+    arr = getArrOfStrings(firstLine)
+    if arr:
+        if len(arr) != 1 and firstLine[0].lower() != ".ippcode24":
+            print("Spatna hlavicka: " + firstLine[0].lower())
+            sys.exit(21)
+        hasHeader = True    
+        break
+
+if hasHeader is False:
+    print("Chybi hlavicka .ippcode24, prakticky soubor obsahuje pouze komentare nebo je kompletne prazdny")
     sys.exit(21)
 
 #decompose input in array of strings and get rid of comments in given code
