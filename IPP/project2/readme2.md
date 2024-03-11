@@ -1,0 +1,1 @@
+# IPP uloha cislo 2, interpret.php
