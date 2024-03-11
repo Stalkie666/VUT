@@ -1,3 +1,5 @@
+# Author: Jakub Hamadej (xhamad03), FIT VUT
+
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as minidom
 import sys
