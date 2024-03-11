@@ -3,7 +3,7 @@ import xml.dom.minidom as minidom
 import sys
 import re
 
-#--help
+#help function, print if is called --help argument
 def help():
     print("###################### Parser.py ######################")
     print("This script load input from standard input (stdin), convert input if is correct according to IPPcore24 language and write it's XML representations on standard output (stdout)")
@@ -11,10 +11,12 @@ def help():
     print("--help : print this info")
     sys.exit(0)
 
+#function for get rid of the comments in line and spliting instructions
 def getArrOfStrings(line):
     arr = line.split("#",1)
     return arr[0].split()
 
+#function for checking if var type is correct
 def varXML  (instruction_node,argN,data):
     if str(data).split('@',1)[0] in ['GF','TF','LF']:
         node = ET.SubElement(instruction_node,argN,type='var')
@@ -27,6 +29,7 @@ def varXML  (instruction_node,argN,data):
     else:
         sys.exit(23)
 
+#function for checking if symb type is correct
 def symbXML (instruction_node,argN,data):
     if str(data).split('@',1)[0] in ['GF','TF','LF']:
         node = ET.SubElement(instruction_node,argN,type='var')
@@ -53,6 +56,7 @@ def symbXML (instruction_node,argN,data):
     else:
         sys.exit(23)
 
+#function for checking if label type is correct
 def labelXML(instruction_node,argN,data):
     patern = r'^[a-zA-Z0-9_\-&%*$!?]+$'
     if re.search(patern,data):
@@ -61,6 +65,7 @@ def labelXML(instruction_node,argN,data):
     else:
         sys.exit(23)
 
+#function for checking if type type is correct
 def typeXML (instruction_node,argN,data):
     if str(data).lower() in ['int','string','bool']:
         node = ET.SubElement(instruction_node,argN,type='type')
@@ -68,7 +73,7 @@ def typeXML (instruction_node,argN,data):
     else:
         sys.exit(23)
 
-#zpracovani radky do xml tree
+#function for processing a line into an XML tree
 def addLineIntoXMLTree(root,inputArr,order):
     isfound = False
     for item in arrayOfCommands:
@@ -76,12 +81,12 @@ def addLineIntoXMLTree(root,inputArr,order):
             instruction_node = ET.SubElement(root,"instruction",order=str(order),opcode=inputArr[0])
             isfound = True
 
-            #kontrola počtu parametrů
+            #checking the number of parameters
             if len(item) != len(inputArr):
-                print('Fucking spatna delka prikazu')
+                print('Bad number of parameters in given instruction')
                 print(inputArr)
                 sys.exit(23)
-            #for-cyklus pro vytvareni a kontrolu jednotlivych parametru
+            #loop for creating and checking individual parameters
             for i in range(1,len(inputArr)):
                 argN = "arg" + str(i)
                 if item[i] == 'var':
@@ -93,12 +98,13 @@ def addLineIntoXMLTree(root,inputArr,order):
                 else:
                     typeXML(instruction_node,argN,inputArr[i])
             break
+    #if given instruction does not exist => end script
     if isfound == False:
-        print('Fucking chyba: ')
+        print('Unknown instruction: ')
         print(inputArr)
         sys.exit(22)
     
-
+#just array of instructions which can be accepted
 arrayOfCommands = [
     ['MOVE','var','symb'],
     ['CREATEFRAME'],
@@ -140,7 +146,7 @@ arrayOfCommands = [
 
 #MAIN
     
-#check for incomming arguments    
+#check for incomming arguments - if you try more argument - it will end script with error   
 n =  len(sys.argv)   
 if n > 1:
     if sys.argv[1] == "--help":
@@ -149,18 +155,19 @@ if n > 1:
         print("Unknown argument")
         sys.exit(10)
 
+# checking if given input has .ippcode24
 hasHeader = False
 for firstLine in sys.stdin:
     arr = getArrOfStrings(firstLine)
     if arr:
         if len(arr) != 1 and firstLine[0].lower() != ".ippcode24":
-            print("Spatna hlavicka: " + firstLine[0].lower())
+            print("Wrong header: " + firstLine[0].lower())
             sys.exit(21)
         hasHeader = True    
         break
 
 if hasHeader is False:
-    print("Chybi hlavicka .ippcode24, prakticky soubor obsahuje pouze komentare nebo je kompletne prazdny")
+    print("Missing header '.ippcode24', practicaly input contains only comments or is completely empty.")
     sys.exit(21)
 
 #decompose input in array of strings and get rid of comments in given code
@@ -175,7 +182,7 @@ for line in sys.stdin:
         order += 1
     
 
-#vyplivnout vystup pokud je na vstupu vsechno v poradku
+#output the result if everything is in order on the input.
 tree = ET.ElementTree(root)
 tree_str = ET.tostring(root,encoding="utf-8",xml_declaration=True,method='xml').decode('utf-8')
 tree_str = minidom.parseString(tree_str).toprettyxml(indent=f"{' ' * 4}",encoding='UTF-8').decode('utf-8')
