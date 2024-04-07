@@ -33,6 +33,8 @@ def varXML  (instruction_node,argN,data):
 
 #function for checking if symb type is correct
 def symbXML (instruction_node,argN,data):
+    if not re.search(r'^[^@]*@[^@]*$',str(data)):
+        sys.exit(23)
     if str(data).split('@',1)[0] in ['GF','TF','LF']:
         node = ET.SubElement(instruction_node,argN,type='var')
         patern = r'^[a-zA-Z0-9_\-&%*$!?]+$'
@@ -45,13 +47,13 @@ def symbXML (instruction_node,argN,data):
         node = ET.SubElement(instruction_node,argN,type=str(data).split('@',1)[0])
         type = str(data).split('@',1)[0]
         constant = str(data).split('@',1)[1]
-        if type == 'int' and re.search(r'^[-]?[0-9]+$',constant):
+        if type == 'int' and ( re.search(r'^[-]?[0-9]+$',constant) or re.search(r'^-?0x[0-9A-Fa-f]+$',constant) or re.search(r'^-?0o[0-7]+$',constant)):
             node.text = constant
         elif (type == 'bool' and (constant == 'true' or constant == 'false')):
             node.text = constant
         elif type == 'nil' and constant == 'nil':
             node.text = 'nil'
-        elif type == 'string':
+        elif type == 'string' and re.search(r'[^\x00-\x1F\x23\x5C]|\\[0-9]{3}',constant):
             node.text = constant
         else:
             sys.exit(23)    
@@ -69,7 +71,7 @@ def labelXML(instruction_node,argN,data):
 
 #function for checking if type type is correct
 def typeXML (instruction_node,argN,data):
-    if str(data).lower() in ['int','string','bool']:
+    if str(data) in ['int','string','bool']:
         node = ET.SubElement(instruction_node,argN,type='type')
         node.text = data
     else:
@@ -78,9 +80,10 @@ def typeXML (instruction_node,argN,data):
 #function for processing a line into an XML tree
 def addLineIntoXMLTree(root,inputArr,order):
     isfound = False
+    
     for item in arrayOfCommands:
-        if item[0] == inputArr[0]:
-            instruction_node = ET.SubElement(root,"instruction",order=str(order),opcode=inputArr[0])
+        if item[0] == (inputArr[0].upper()) :
+            instruction_node = ET.SubElement(root,"instruction",order=str(order),opcode=item[0])
             isfound = True
 
             #checking the number of parameters
@@ -126,9 +129,9 @@ arrayOfCommands = [
     ['EQ',  'var','symb','symb'],
     ['AND', 'var','symb','symb'],
     ['OR',  'var','symb','symb'],
-    ['NOT', 'var','symb','symb'],
+    ['NOT', 'var','symb'],
     ['INT2CHAR','var','symb'],
-    ['STRING2INT','var','symb','symb'],
+    ['STRI2INT','var','symb','symb'],
     ['READ','var','type'], #type = {int,string,bool}
     ['WRITE','symb'],
     ['CONCAT','var','symb','symb'],
@@ -161,10 +164,7 @@ if n > 1:
 hasHeader = False
 for firstLine in sys.stdin:
     arr = getArrOfStrings(firstLine)
-    if arr:
-        if len(arr) != 1 and firstLine[0].lower() != ".ippcode24":
-            print("Wrong header: " + firstLine[0].lower())
-            sys.exit(21)
+    if arr and len(arr) == 1 and arr[0].lower() == ".ippcode24":
         hasHeader = True    
         break
 
@@ -189,3 +189,4 @@ tree = ET.ElementTree(root)
 tree_str = ET.tostring(root,encoding="utf-8",xml_declaration=True,method='xml').decode('utf-8')
 tree_str = minidom.parseString(tree_str).toprettyxml(indent=f"{' ' * 4}",encoding='UTF-8').decode('utf-8')
 sys.stdout.write(tree_str)
+sys.exit(0)
