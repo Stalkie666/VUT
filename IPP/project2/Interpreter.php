@@ -11,6 +11,8 @@ use IPP\Core\Exception\XMLException;
 use IPP\Core\Exception\IPPException;
 use IPP\Core\ReturnCode;
 
+use function PHPSTORM_META\expectedReturnValues;
+
 class Interpreter extends AbstractInterpreter
 {
 
@@ -191,11 +193,7 @@ class Interpreter extends AbstractInterpreter
             $retVal = ReturnCode::OK;
             $currentInstruction = $this->Instructions[$this->currentInstructionIndex];
 
-            $opcode = $currentInstruction->opcode;
-
-            print("Test:\n");
-            print($this->currentInstructionIndex . " ");
-            print($opcode . "\n");
+            $opcode = strtoupper($currentInstruction->opcode);
 
             switch($opcode){
                 case 'MOVE':
@@ -632,44 +630,138 @@ class Interpreter extends AbstractInterpreter
         
         if(  $n >= $len  ) throw new GeneralException("Out of range",ReturnCode::STRING_OPERATION_ERROR);
    
-        $character = mb_substr( $symb1['value'], $len, 1, 'UTF-8');
-        $destination->setValue("string",$character);
+        $character = mb_substr( $symb1['value'], $n, 1, 'UTF-8');
+        $character = mb_ord($character,'UTF-8');
+        if( $character === false ) throw new GeneralException("mb_org failed", ReturnCode::STRING_OPERATION_ERROR);
+        $destination->setValue("int",$character);
         
         return ReturnCode::OK;
     }
     // READ
     public function Read():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $destination = $this->getVariableFromArgument($instructionArguments[0]);
+        $type = $instructionArguments[1]->args[0]['value'];
+
+
+        if( $type === "int" ){
+            $val = $this->input->readInt();
+        }
+        else if($type === "string"){
+            $val = $this->input->readString();
+        }else if($type === "bool"){
+            $val = $this->input->readBool();
+        }else{
+            $val = null;
+        }
+
+        if( $val === null ){
+            $destination->setValue("nil",null);
+        }
+        $destination->setValue($type,$val);
+
         return ReturnCode::OK;
     }
     // WRITE
     public function Write():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[0]);
+
+        if( $symb1['type'] === "int"  ){
+            $this->stdout->writeInt(intval($symb1['value']));
+        }
+        else if( $symb1['type'] === "string"  ){
+            $string = $symb1['value'];
+            $toPrint = preg_replace_callback('/\\\\(\d{3})/', function($match) {
+                return chr($match[1]);
+            }, $string);
+            $this->stdout->writeString($toPrint);
+        }
+        else if( $symb1['type'] === "bool"  ){
+            $this->stdout->writeString($symb1['value']);
+        }
+        else{
+            $this->stdout->writeString("");
+        }
         return ReturnCode::OK;
     }
     // CONCAT
     public function Concat():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $destination = $this->getVariableFromArgument($instructionArguments[0]);
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[1]);
+        $symb2 = $this->parseSymbFromArgument($instructionArguments[2]);
+
+        if( $symb1['type'] !== "string" || $symb2['type'] !== "string" )
+            throw new GeneralException("Wrong types for concat",ReturnCode::OPERAND_TYPE_ERROR);
+
+            $destination->setValue("string", ($symb1['value'] . $symb2['value']) );
+
         return ReturnCode::OK;
     }
     // STRLEN
     public function Strlen():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $destination = $this->getVariableFromArgument($instructionArguments[0]);
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[1]);
+
+        if( $symb1['type'] !== "string" )
+            throw new GeneralException("Wrong types for concat",ReturnCode::OPERAND_TYPE_ERROR);
+
+        $len = mb_strlen($symb1['value'],  'UTF-8' );
+        $destination->setValue("int", $len );
+
         return ReturnCode::OK;
     }
     // GETCHAR
     public function GetChar():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $destination = $this->getVariableFromArgument($instructionArguments[0]);
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[1]);
+        $symb2 = $this->parseSymbFromArgument($instructionArguments[2]);
+
+        if( $symb1['type'] !== "string" ) throw new GeneralException("Symb1 is not a string", ReturnCode::OPERAND_TYPE_ERROR);
+        if( $symb2['type'] !== "int" ) throw new GeneralException("Symb2 is not a int", ReturnCode::OPERAND_TYPE_ERROR);
+        
+        $n = intval($symb2['value']);
+        $len = mb_strlen($symb1['value'],  'UTF-8' );
+        
+        if(  $n >= $len  ) throw new GeneralException("Out of range",ReturnCode::STRING_OPERATION_ERROR);
+   
+        $character = mb_substr( $symb1['value'], $n, 1, 'UTF-8');
+        $destination->setValue("string",$character);
+
         return ReturnCode::OK;
     }
     // SETCHAR
     public function SetChar():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $destination = $this->getVariableFromArgument($instructionArguments[0]);
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[1]);
+        $symb2 = $this->parseSymbFromArgument($instructionArguments[2]);
+
+        if( $destination->type !== "string" ) throw new GeneralException("Symb1 is not a string", ReturnCode::OPERAND_TYPE_ERROR);
+        if( $symb1['type'] !== "int" ) throw new GeneralException("Symb1 is not a string", ReturnCode::OPERAND_TYPE_ERROR);
+        if( $symb2['type'] !== "string" ) throw new GeneralException("Symb2 is not a int", ReturnCode::OPERAND_TYPE_ERROR);
+        
+        $n = intval($symb1['value']);
+        $len = mb_strlen($destination->value,'UTF-8');
+        
+        if(  $n >= $len  ) throw new GeneralException("Out of range",ReturnCode::STRING_OPERATION_ERROR);
+
+        $newCharLen = mb_strlen($symb2['value'],'UTF-8');
+
+        $destination->value[$n] = $symb2['value'][0];
+
         return ReturnCode::OK;
     }
     // TYPE
     public function Type():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $destination = $this->getVariableFromArgument($instructionArguments[0]);
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[1]);
+
+        $destination->setValue("string",$symb1['type']);
         return ReturnCode::OK;
     }
     // JUMP
@@ -679,22 +771,60 @@ class Interpreter extends AbstractInterpreter
     }
     // JUMPIFEQ
     public function JumpIfEq():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[1]);
+        $symb2 = $this->parseSymbFromArgument($instructionArguments[2]);
+
+        if( $symb1['type'] === "nil" || $symb2['type'] === "nil" )
+            $this->MakeJump();
+        else if( $symb1['type'] ===  $symb2['type'] ){
+            if( $symb1['value'] ===  $symb2['value'] )
+                $this->MakeJump();
+        }
+        else
+            throw new GeneralException("Diferent types",ReturnCode::OPERAND_TYPE_ERROR);
+
+
         return ReturnCode::OK;
     }
     // JUMPIFNEQ
     public function JumpIfNeq():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[1]);
+        $symb2 = $this->parseSymbFromArgument($instructionArguments[2]);
+
+        if( $symb1['type'] === "nil" || $symb2['type'] === "nil" )
+            $this->MakeJump();
+        else if( $symb1['type'] ===  $symb2['type'] ){
+            if( $symb1['value'] !==  $symb2['value'] )
+                $this->MakeJump();
+        }
+        else
+            throw new GeneralException("Diferent types",ReturnCode::OPERAND_TYPE_ERROR);
         return ReturnCode::OK;
     }
     // EXIT
     public function Exit():int{
-        // TODO:
-        return ReturnCode::OK;
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[0]);
+
+        if( $symb1['type'] !== "int" )
+            throw new GeneralException("Invalid type for exit",ReturnCode::OPERAND_VALUE_ERROR);
+        
+        $validReturnCode = intval($symb1['value']);
+
+        if( $validReturnCode < 0  || $validReturnCode > 9)
+            throw new GeneralException("Invalid value for exit",ReturnCode::OPERAND_VALUE_ERROR);
+
+        return $validReturnCode;
     }
     // DPRINT
     public function DPrint():int{
-        // TODO:
+        $instructionArguments = $this->Instructions[$this->currentInstructionIndex]->args;
+        $symb1 = $this->parseSymbFromArgument($instructionArguments[0]);
+
+        $this->stderr->writeString($symb1['value']);
+
         return ReturnCode::OK;
     }
     // BREAK
