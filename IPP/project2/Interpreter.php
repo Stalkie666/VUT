@@ -658,7 +658,9 @@ class Interpreter extends AbstractInterpreter
         if( $val === null ){
             $destination->setValue("nil",null);
         }
-        $destination->setValue($type,$val);
+        else{
+            $destination->setValue($type,$val);
+        }
 
         return ReturnCode::OK;
     }
