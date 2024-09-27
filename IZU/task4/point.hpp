@@ -24,5 +24,5 @@ Point::~Point()
 }
 
 void Point::printPoint(){
-    std::cout << "( " << this->x << " ," << this->y << " ," << this->z <<")";
+    std::cout << "( " << this->x << ", " << this->y << ", " << this->z <<")";
 }

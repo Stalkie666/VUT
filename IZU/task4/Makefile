@@ -6,4 +6,4 @@ run: task4
 	./task4
 
 clean:
-	rm -rf task4
+	rm -rf task4 output.txt
