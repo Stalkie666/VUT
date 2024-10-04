@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <ncurses.h>
+#include <pcap/pcap.h>
 
 
 class IsaTop{
