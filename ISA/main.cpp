@@ -1,30 +1,69 @@
-#include <iostream>
-#include "isa-top.hpp"
+#include <signal.h>
+#include <time.h>
+#include <unistd.h>
 
-struct Arguments{
+#include "packet_handler.hpp"
+
+
+// recors capcured with pcap
+extern std::shared_ptr<IsaTop> isaTop;
+extern char errbuf[PCAP_ERRBUF_SIZE];
+extern pcap_t * handle;
+
+// flag for keeping program running
+bool keepRunning = true;
+
+typedef struct Arguments{
     int listeningInterface;
     bool sortingByBytes;
 }Arguments_t;
 
-int handleArguments(int argc, char * argv[]){
-    for(int i = 1; i < argc; ++i){
-        // interface
-        if(1){
+Arguments_t handleArguments(int argc, char * argv[]){
+    Arguments_t arguments;
+    // TODO: dodelat zpracovani vstupu
 
-        }
-        // sorting
-        else if(2){
+    return arguments;
+}
 
-        }
-        else
-            return 1; //error
-    }
+/**
+ * Each second, print statistics and wipe data stored in them
+ */
+void next_second_alarm(int sig){
+    if( isaTop != nullptr)
+        isaTop->printRecords();
+    alarm(1);
+}
 
-
-    return 0;
+/**
+ * When want to end program, send terminating signal
+ */
+void terminal_alarm(int sig){
+    if( handle ) pcap_breakloop(handle);
+    keepRunning = false;
 }
 
 
 int main(int argc, char * argv[]){
+
+    
+
+    signal(SIGINT,terminal_alarm);
+    signal(SIGALRM,next_second_alarm);
+    alarm(1);
+    
+    // TODO: zpracovani argumentu
+
+    isaTop = std::make_shared<IsaTop>(5,false);
+    
+    handle = pcap_open_live("wlp2s0",BUFSIZ,1,1000,errbuf);
+    if(!handle){
+        isaTop = nullptr;
+        fprintf(stderr,"Neslo to otevrit.\n");
+        return 0;
+    }
+    pcap_loop(handle,0,packet_handler,NULL);
+
+    isaTop = nullptr;
+    printf("Konec\n");
     return 0;
 }

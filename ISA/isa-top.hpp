@@ -1,3 +1,7 @@
+#ifndef __ISA_TOP_HPP__
+#define __ISA_TOP_HPP__
+
+
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -21,6 +25,13 @@ class Record{
 class IsaTop{
     public:
         IsaTop(int listeningInterface,bool sortByBytes);
+        ~IsaTop();
+        int addRecord(std::shared_ptr<Record>);
+        int sortRecords();
+        int deleteAllRecords();
+        int printRecords();
+
+        int test = 0;
     private:
         // listenig Interface
         int listeningInterface;
@@ -30,3 +41,7 @@ class IsaTop{
         std::vector<std::shared_ptr<Record>> records;
 
 };
+
+
+
+#endif //__ISA_TOP_HPP__
