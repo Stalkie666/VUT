@@ -11,8 +11,8 @@ class Record{
         // Constructor
         Record( __uint128_t srcIP,  __uint128_t destIP, 
                 uint32_t srcPort,   uint32_t destPort, 
-                std::string protocolName, uint32_t transmitedBytes);
-        // Destructor - will not be needed
+                std::string protocolName, uint32_t transmitedBytes, bool isIPv4);
+        // Destructor - will not be needed 
         // methods
             // return higher Number of bytes
         uint32_t numberOfBytes() const;
@@ -25,6 +25,8 @@ class Record{
             // check if this is correct record or not
         bool isSameRecord(const std::shared_ptr<Record> & data) const;
     private:
+        //types: IPv4 true, IPv6 false
+        bool isIPv4;
         //src ip
         __uint128_t srcIp;
         //src port - if has one if not, then value is 0
@@ -35,10 +37,10 @@ class Record{
         uint32_t destPort;
         // protocol name - store in string
         std::string protocolName;
-        // some Rx shit - bytes/packets for SRC from DEST
+        // some Rx - bytes/packets for SRC from DEST
         uint32_t recievedBytes;
         uint32_t recievedPackets;
-        // some Tx shit - bytes/packets for DEST from SRC
+        // some Tx - bytes/packets for DEST from SRC
         uint32_t transmitedBytes;
         uint32_t transmitedPackets;
 };

@@ -6,29 +6,18 @@
 
 
 // recors capcured with pcap
-extern std::shared_ptr<IsaTop> isaTop;
-extern char errbuf[PCAP_ERRBUF_SIZE];
-extern pcap_t * handle;
+std::shared_ptr<IsaTop> isaTop;
+char errbuf[PCAP_ERRBUF_SIZE];
+pcap_t * handle;
 
 // flag for keeping program running
 bool keepRunning = true;
-
-typedef struct Arguments{
-    int listeningInterface;
-    bool sortingByBytes;
-}Arguments_t;
-
-Arguments_t handleArguments(int argc, char * argv[]){
-    Arguments_t arguments;
-    // TODO: dodelat zpracovani vstupu
-
-    return arguments;
-}
 
 /**
  * Each second, print statistics and wipe data stored in them
  */
 void next_second_alarm(int sig){
+    // check if isaTop still exist
     if( isaTop != nullptr)
         isaTop->printRecords();
     alarm(1);
@@ -44,12 +33,7 @@ void terminal_alarm(int sig){
 
 
 int main(int argc, char * argv[]){
-
     
-
-    signal(SIGINT,terminal_alarm);
-    signal(SIGALRM,next_second_alarm);
-    alarm(1);
     
     // TODO: zpracovani argumentu
 
@@ -61,6 +45,14 @@ int main(int argc, char * argv[]){
         fprintf(stderr,"Neslo to otevrit.\n");
         return 0;
     }
+
+    // set signals
+        // ctrl + c
+    signal(SIGINT,terminal_alarm);
+        // every second alarm
+    signal(SIGALRM,next_second_alarm);
+    alarm(1);
+
     pcap_loop(handle,0,packet_handler,NULL);
 
     isaTop = nullptr;

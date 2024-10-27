@@ -8,30 +8,16 @@
 #include <ncurses.h>
 #include <pcap/pcap.h>
 
-class Record{
-    public:
-    private:
-        //src ip
-        //src port
-        //dst ip
-        //dst port
-        // protocol name
-        // some Rx shit
-        // some Tx shit
-};
-
-
+#include "record.hpp"
 
 class IsaTop{
     public:
         IsaTop(int listeningInterface,bool sortByBytes);
         ~IsaTop();
-        int addRecord(std::shared_ptr<Record>);
+        int addRecord(std::shared_ptr<Record> & addingRecord);
         int sortRecords();
         int deleteAllRecords();
         int printRecords();
-
-        int test = 0;
     private:
         // listenig Interface
         int listeningInterface;

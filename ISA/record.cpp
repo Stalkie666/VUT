@@ -2,7 +2,7 @@
 
 Record::Record( __uint128_t srcIP,  __uint128_t destIP, 
                 uint32_t srcPort,   uint32_t destPort, 
-                std::string protocolName, uint32_t transmitedBytes){
+                std::string protocolName, uint32_t transmitedBytes, bool isIPv4){
                     // set up differently
                     this->srcIp = srcIP;
                     this->destIp = destIP;
@@ -10,6 +10,7 @@ Record::Record( __uint128_t srcIP,  __uint128_t destIP,
                     this->destPort = destPort;
                     this->protocolName = protocolName;
                     this->transmitedBytes = transmitedBytes;
+                    this->isIPv4 = isIPv4;
                     // default set up
                     this->transmitedPackets = 1;
                     this->recievedBytes = 0;
@@ -30,7 +31,7 @@ std::string Record::printableRecords() const{
     // upravit Bajty a Packety na prijatelne hodnoty
     // a spravne zaokrouhlit
 
-    return "TODO: hodnoty na tisk neudelany xd\n";
+    return "TODO: hodnoty na tisk neudelany xd";
 }
 
 void Record::addBytes(const std::shared_ptr<Record> & data){
@@ -41,7 +42,7 @@ void Record::addBytes(const std::shared_ptr<Record> & data){
         }
     else{
         this->recievedBytes += this->transmitedBytes;
-        this->recievedBytes++;
+        this->recievedPackets++;
     }
 }
 
