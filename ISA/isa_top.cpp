@@ -1,15 +1,15 @@
 #include "isa_top.hpp"
 
-IsaTop::IsaTop(int listeningInterface,bool sortByBytes){
+IsaTop::IsaTop(bool sortByBytes){
     this->sortByBytes = sortByBytes;
-    this->listeningInterface = listeningInterface;
     this->records.clear();
     initscr();
-    printw("Inicialized");
+    printw("Nacitani dat...");
     refresh();
 }
 
 IsaTop::~IsaTop(){
+    this->records.clear();
     endwin();
 }
 /**
@@ -46,13 +46,11 @@ int IsaTop::deleteAllRecords(){
 int IsaTop::printRecords(){
     clear();
     printw("Src IP:port\t\tDst Ip:port\t\tProto\tRx\tTx\n");
-    
-    /* TODO: SMAZAT, jen na debug */ printw("Records=%ld\n", this->records.size());
 
     this->sortRecords();
     int N = (this->records.size() >= 10 ) ? 10 : this->records.size();
     for(int i = 0; i < N; ++i)
-        printw("%d: %s\n",(i+1), this->records[i]->printableRecords().c_str());
+        printw("%s\n", this->records[i]->printableRecords().c_str());
     refresh();
     // clear records for next second
     this->deleteAllRecords();

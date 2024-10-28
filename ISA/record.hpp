@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <sstream>
 
 
 class Record{
@@ -25,16 +26,20 @@ class Record{
             // check if this is correct record or not
         bool isSameRecord(const std::shared_ptr<Record> & data) const;
     private:
+        //private methods
+        std::string ipv4ToString(__uint32_t IpAddress, uint16_t port) const;
+        std::string ipv6ToString(__uint128_t IpAddress, uint16_t port) const;
+        std::string bytesAndPacketsToRightFormat(uint32_t bytes, uint32_t packets) const;
         //types: IPv4 true, IPv6 false
         bool isIPv4;
         //src ip
         __uint128_t srcIp;
         //src port - if has one if not, then value is 0
-        uint32_t srcPort;
+        uint16_t srcPort;
         //dst ip
         __uint128_t destIp;
         //dst port - if has one, if not, then value is 0
-        uint32_t destPort;
+        uint16_t destPort;
         // protocol name - store in string
         std::string protocolName;
         // some Rx - bytes/packets for SRC from DEST
