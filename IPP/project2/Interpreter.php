@@ -73,7 +73,7 @@ class Interpreter extends AbstractInterpreter
     {
         $previousOrder = 0;
         $xpath = new DOMXPath(($this->root));
-        $query = "/program[count(@*) = 1 and @language='IPPcode24']";
+        $query = "/program[[translate(@language, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = 'ippcode24']]";
         $programNodes = $xpath->query($query);
 
         if( $programNodes->length != 1 ){
@@ -908,7 +908,7 @@ class Interpreter extends AbstractInterpreter
         );
     }
 
-    public function parseSymbFromArgument($argument): array | NULL{
+    public function parseSymbFromArgument($argument): ?array{
         $source = NULL;
         if( $argument['type'] === "var" ){
             $input = $argument['value'];
