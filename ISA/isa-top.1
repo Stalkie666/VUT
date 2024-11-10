@@ -1,2 +1,31 @@
-TODO:
-toto bude Readme
+.TH ISA-TOP 1
+
+.SH NAME
+    isa-top
+.SH SYNOPSIS
+    isa-top -i int [-s b|p]
+.SH DESCRIPTION
+    Isa-top is a tool for capturing ethernet packets and displaying statistics. It will show 10 most active connections of previous second
+.SH OPTIONS
+    -i int - is mandatory option, you must choose interface, if not, program will end with error
+    -s b|p - choose to sort betweent the most recieved number of packets and bytes, default is sort by bytes
+.SH EXAMPLES
+    To start a program with interface "wlp2s0":
+    ./isa-top -i wlp2s0
+    To start a program with interface "wlp2s0" and sort by number of packets:
+    ./isa-top -i wlp2s0 -s p
+.SH EXIT STATUS
+    0   Program completed successfully.
+    1   Cannot start listenning in given interface
+.SH AUTHOR
+    Jakub Hamadej <xhamad03@vutbr.cz>
+.SH COPYRIGHT
+    This program is free software: you can redistribute it and/or modify.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
