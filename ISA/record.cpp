@@ -32,21 +32,17 @@ std::string Record::printableRecords() const{
     // TODO: zpracovat hodnoty pro tisk do stringu,
     std::stringstream ss;
     if( this->isIPv4 ){
-         ss << this->ipv4ToString(this->srcIp,this->srcPort);
-         ss << "\t";
-         ss << this->ipv4ToString(this->destIp,this->destPort);
-         ss << "\t" << this->protocolName;
-         ss << "\t" << this->bytesAndPacketsToRightFormat(this->recievedBytes,this->recievedPackets);
-         ss << "\t" << this->bytesAndPacketsToRightFormat(this->transmitedBytes,this->transmitedPackets);
+         ss << std::left << std::setw(50) << this->ipv4ToString(this->srcIp,this->srcPort);
+         ss << std::left << std::setw(50) << this->ipv4ToString(this->destIp,this->destPort);
     }
     else{
-        ss << this->ipv6ToString(this->srcIp,this->srcPort);
-        ss << "\t";
-        ss << this->ipv6ToString(this->destIp,this->destPort);
-        ss << "\t" << this->protocolName;
-        ss << "\t" << this->bytesAndPacketsToRightFormat(this->recievedBytes,this->recievedPackets);
-        ss << "\t" << this->bytesAndPacketsToRightFormat(this->transmitedBytes,this->transmitedPackets);
+        ss << std::left << std::setw(50) << this->ipv6ToString(this->srcIp,this->srcPort);
+        ss << std::left << std::setw(50) << this->ipv6ToString(this->destIp,this->destPort);
     }
+
+    ss << std::left << std::setw(10) << this->protocolName;
+    ss << std::left << std::setw(10) << this->bytesAndPacketsToRightFormat(this->recievedBytes,this->recievedPackets);
+    ss << std::left << std::setw(10) << this->bytesAndPacketsToRightFormat(this->transmitedBytes,this->transmitedPackets);
 
     return ss.str();
 }

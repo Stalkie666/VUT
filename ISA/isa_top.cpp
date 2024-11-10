@@ -32,9 +32,10 @@ int IsaTop::addRecord(std::shared_ptr<Record> & addingRecord){
 }
 
 int IsaTop::sortRecords(){
-    // TODO: radit zaznamy
-        // podle poctu packetu
-        // podle poctu bytu
+    if( this->sortByBytes )
+        std::sort(this->records.begin(),this->records.end(), [](const std::shared_ptr<Record> & a,const std::shared_ptr<Record> & b){ return a->numberOfBytes() > b->numberOfBytes(); });
+    else
+        std::sort(this->records.begin(),this->records.end(), [](const std::shared_ptr<Record> & a,const std::shared_ptr<Record> & b){ return a->numberOfPackets() > b->numberOfPackets(); });
     return 0;
 }
 
@@ -45,7 +46,14 @@ int IsaTop::deleteAllRecords(){
 
 int IsaTop::printRecords(){
     clear();
-    printw("Src IP:port\t\tDst Ip:port\t\tProto\tRx\tTx\n");
+    std::stringstream ss;
+    ss  << std::left << std::setw(50) << "Src IP:port"
+        << std::left << std::setw(50) << "Dst IP:port"
+        << std::left << std::setw(10) << "Proto"
+        << std::left << std::setw(10) << "Rx" 
+        << std::left << std::setw(10) << "Tx" << std::endl;
+    printw(ss.str().c_str());
+
 
     this->sortRecords();
     int N = (this->records.size() >= 10 ) ? 10 : this->records.size();

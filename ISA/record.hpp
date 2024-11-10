@@ -1,7 +1,8 @@
-#ifndef __RECORD_HPmakeP__
+#ifndef __RECORD_HPP__
 #define __RECORD_HPP__
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <memory>
 #include <sstream>

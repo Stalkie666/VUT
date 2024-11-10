@@ -49,9 +49,7 @@ void printHelp(){
 }
 
 int main(int argc, char * argv[]){
-    
-    
-    // TODO: zpracovani argumentu
+    // arguments handler
     std::string interface = "";
     bool sortByBytes = true;
     for(int i = 1; i < argc; ++i){
