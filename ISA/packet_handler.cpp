@@ -1,3 +1,5 @@
+// Author: Jakub Hamadej, xhamad03@vutbr.cz, FIT VUT, 11/11/2024
+
 #include "packet_handler.hpp"
 
 // size of ling layer

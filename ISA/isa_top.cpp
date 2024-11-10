@@ -1,3 +1,5 @@
+// Author: Jakub Hamadej, xhamad03@vutbr.cz, FIT VUT, 11/11/2024
+
 #include "isa_top.hpp"
 
 IsaTop::IsaTop(bool sortByBytes){

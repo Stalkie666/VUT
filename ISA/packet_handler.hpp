@@ -1,3 +1,5 @@
+// Author: Jakub Hamadej, xhamad03@vutbr.cz, FIT VUT, 11/11/2024
+
 #ifndef __PACKET_HANDLER_HPP_
 #define __PACKET_HANDLER_HPP_
 

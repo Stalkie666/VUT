@@ -1,3 +1,5 @@
+// Author: Jakub Hamadej, xhamad03@vutbr.cz, FIT VUT, 11/11/2024
+
 #ifndef __RECORD_HPP__
 #define __RECORD_HPP__
 

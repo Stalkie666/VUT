@@ -1,3 +1,5 @@
+// Author: Jakub Hamadej, xhamad03@vutbr.cz, FIT VUT, 11/11/2024
+
 #include "record.hpp"
 
 Record::Record( __uint128_t srcIP,  __uint128_t destIP, 
