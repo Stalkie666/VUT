@@ -19,7 +19,7 @@ packet_handler.o: packet_handler.cpp isa_top.hpp packet_handler.hpp
 
 
 pack:
-	zip isa-top.zip Makefile *.cpp *.hpp isa-top.1 manual.pdf
+	tar -cvf xhamad03.tar Makefile *.cpp *.hpp isa-top.1 manual.pdf
 
 clean:
-	rm -rf isa-top *.o isa-top.zip
+	rm -rf isa-top *.o xhamad03.tar
