@@ -21,7 +21,11 @@ class IsaTop{
         int sortRecords();
         int deleteAllRecords();
         int printRecords();
+        void zeroRecords();
+        // flag for print records
+        bool flagPrintRecords;
     private:
+        
         // TRUE if sort by bytes/s, FALSE if sort by packets/s
         bool sortByBytes;
         // store all records of captured packets

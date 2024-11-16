@@ -8,6 +8,13 @@
 #define IPv6_DATA_OFFSET 54
 
 void packet_handler(u_char *user, const struct pcap_pkthdr * header, const u_char *packet){
+    if(isaTop->flagPrintRecords){
+        isaTop->deleteAllRecords();
+        isaTop->flagPrintRecords = false;
+    }
+
+
+
     std::shared_ptr<Record> record  = nullptr;
 
     uint8_t IPvX = *(packet + IPvX_OFFSET) & 0xF0;

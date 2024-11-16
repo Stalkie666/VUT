@@ -5,6 +5,7 @@
 IsaTop::IsaTop(bool sortByBytes){
     this->sortByBytes = sortByBytes;
     this->records.clear();
+    this->flagPrintRecords = false;
     initscr();
     printw("Nacitani dat...");
     refresh();
@@ -51,19 +52,31 @@ int IsaTop::printRecords(){
     std::stringstream ss;
     ss  << std::left << std::setw(50) << "Src IP:port"
         << std::left << std::setw(50) << "Dst IP:port"
-        << std::left << std::setw(10) << "Proto"
-        << std::left << std::setw(10) << "Rx" 
-        << std::left << std::setw(10) << "Tx" << std::endl;
+        << std::left << std::setw(7) << "Proto"
+        << std::left << std::setw(3) << "Rx:"
+        << std::left << std::setw(8) << "B/s"
+        << std::left << std::setw(8) << "P/s" 
+        << std::left << std::setw(3) << "Tx:"
+        << std::left << std::setw(8) << "B/s"
+        << std::left << std::setw(8) << "P/s" 
+        << std::endl;
     printw(ss.str().c_str());
 
 
     this->sortRecords();
     int N = (this->records.size() >= 10 ) ? 10 : this->records.size();
     for(int i = 0; i < N; ++i)
-        printw("%s\n", this->records[i]->printableRecords().c_str());
+        if( this->records[i]->numberOfPackets() != 0 ) printw("%s\n", this->records[i]->printableRecords().c_str());
     refresh();
-    // clear records for next second
-    this->deleteAllRecords();
     
     return 0;
+}
+
+/**
+ * set all records to 0
+ */
+void IsaTop::zeroRecords(){
+    for(auto record : this->records){
+        record->zeroRecord();
+    }
 }

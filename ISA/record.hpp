@@ -24,6 +24,8 @@ class Record{
         uint32_t numberOfPackets() const;
             // return string for print this record
         std::string printableRecords() const;
+            // null record - set bytes and packets to zeros
+        void zeroRecord();
             // increase values
         void addBytes(const std::shared_ptr<Record> & data);
             // check if this is correct record or not

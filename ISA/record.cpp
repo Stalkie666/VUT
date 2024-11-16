@@ -43,8 +43,9 @@ std::string Record::printableRecords() const{
     }
 
     ss << std::left << std::setw(10) << this->protocolName;
-    ss << std::left << std::setw(10) << this->bytesAndPacketsToRightFormat(this->recievedBytes,this->recievedPackets);
-    ss << std::left << std::setw(10) << this->bytesAndPacketsToRightFormat(this->transmitedBytes,this->transmitedPackets);
+    ss << std::left << std::setw(16) << this->bytesAndPacketsToRightFormat(this->recievedBytes,this->recievedPackets);
+    ss << "   ";
+    ss << std::left << std::setw(16) << this->bytesAndPacketsToRightFormat(this->transmitedBytes,this->transmitedPackets);
 
     return ss.str();
 }
@@ -123,39 +124,53 @@ std::string Record::bytesAndPacketsToRightFormat(uint32_t bytes, uint32_t packet
     std::stringstream ss;
     // >= million bytes
     double tmpBytes;
+    std::stringstream tmpSS;
     if(bytes >= 1000000){
         tmpBytes = bytes;
         tmpBytes = tmpBytes / 1000000;
-        ss << tmpBytes << "M";
+        tmpSS << std::fixed << std::setprecision(1) << tmpBytes << "M";
     }
     // >= thousands bytes
     else if(bytes >= 1000){
         tmpBytes = bytes;
         tmpBytes = tmpBytes / 1000;
-        ss << tmpBytes << "k";
+        tmpSS  << std::fixed << std::setprecision(1) << tmpBytes << "k";
     }
     // < thousand bytes
     else{
-        ss << bytes;
+        tmpSS << std::left << std::setw(8) << bytes;
     }
-    ss << " ";
+    ss << std::left << std::setw(8) << tmpSS.str();
+    tmpSS.str("");
 
     double tmpPackets;
     // >= million packets
     if(packets >= 1000000){
         tmpPackets = packets;
         tmpPackets = tmpPackets / 1000000;
-        ss << tmpPackets << "M";
+        tmpSS << std::fixed << std::setprecision(1) << tmpPackets << "M";
     }
     // >= thousands packets
     else if(packets >= 1000){
         tmpPackets = packets;
         tmpPackets = tmpPackets / 1000000;
-        ss << tmpPackets << "k";
+        tmpSS << std::fixed << std::setprecision(1) << tmpPackets << "k";
     }
     // < thousand packets
     else{
-        ss << packets;
+        tmpSS << packets;
     }
+    ss << std::left << std::setw(8) << tmpSS.str();
     return ss.str();
+}
+
+/**
+ * zeros record, it's because if record is irresponsibly removed from memory in bad timing, it would crash
+ */
+
+void Record::zeroRecord(){
+    this->recievedBytes = 0;
+    this->recievedPackets = 0;
+    this->transmitedBytes = 0;
+    this->transmitedPackets = 0;
 }

@@ -11,34 +11,36 @@
 
 // recors capcured with pcap
 std::shared_ptr<IsaTop> isaTop;
+
+// pcap stuff
 char errbuf[PCAP_ERRBUF_SIZE];
 pcap_t * handle;
-
-// flag for keeping program running
-bool keepRunning = true;
 
 /**
  * Each second, print statistics and wipe data stored in them
  */
 void next_second_alarm(int sig){
     // check if isaTop still exist
-    if( isaTop != nullptr)
+    if( isaTop != nullptr){
         isaTop->printRecords();
+        isaTop->zeroRecords();
+        isaTop->flagPrintRecords = true;
+    }
+        
     alarm(1);
 }
 
 /**
- * When want to end program, send terminating signal
+ * When want to end program, breakloop for pcap
  */
 void terminal_alarm(int sig){
     if( handle ) pcap_breakloop(handle);
-    keepRunning = false;
 }
 
 void printHelp(){
     std::cout << "Program isa-top" << std::endl;
     std::cout << "Jeho hlavnim ucelem je zachytavat provoz na siti" << std::endl;
-    std::cout << "a vypisovat 10 nejaktivnejsich spopjeni." << std::endl;
+    std::cout << "a vypisovat 10 nejaktivnejsich spojeni." << std::endl;
     std::cout << "" << std::endl;
     std::cout << "Uziti:" << std::endl;
     std::cout << "-i int    : Zadanim prepinace '-i int' zadate interface," << std::endl;
@@ -103,6 +105,5 @@ int main(int argc, char * argv[]){
 
     isaTop = nullptr;
     pcap_close(handle);
-    printf("Konec\n");
     return 0;
 }
