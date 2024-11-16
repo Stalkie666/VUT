@@ -4,10 +4,6 @@ CPP=g++
 CPPFLAGS=-Wall -pedantic -lncurses -lpcap
 
 default: isa-top
-
-run: isa-top
-	sudo ./isa-top -i wlp2s0
-
 	
 isa-top: isa_top.o packet_handler.o main.o record.o
 	$(CPP) $(CPPFLAGS) record.o isa_top.o packet_handler.o main.o -o isa-top
