@@ -50,6 +50,7 @@ void printHelp(){
     std::cout << "            prenesenych dat (moznost 'b') nebo podle poctu" << std::endl;
     std::cout << "            prenesenych packetu (moznost 'p')" << std::endl;
     std::cout << "-h|--help : Vypise nabidku help" << std::endl;
+    std::cout << std::endl;
     std::cout << "Pro ukonceni programu stisknete CTRL+C" << std::endl;
 }
 
