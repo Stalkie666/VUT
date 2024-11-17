@@ -56,10 +56,12 @@ int main(int argc, char * argv[]){
     // arguments handler
     std::string interface = "";
     bool sortByBytes = true;
+    bool isInterfaceSet = false;
     for(int i = 1; i < argc; ++i){
         if( strcmp("-i",argv[i]) == 0 && (i+1) < argc ){
             ++i;
             interface = argv[i];
+            isInterfaceSet = true;
         }
         else if (strcmp("-s", argv[i]) == 0 && (i+1) < argc)
         {
@@ -84,13 +86,16 @@ int main(int argc, char * argv[]){
         
     }
 
-    
+    if( isInterfaceSet == false ){
+        std::cerr << "Nebyl zadan zadny interface, prosim zadejte -i interface, pripadne -h|--help" << std::endl;
+        return 1;
+    }
     
     handle = pcap_open_live(interface.c_str() ,BUFSIZ,1,1000,errbuf);
     if(!handle){
         isaTop = nullptr;
         std::cerr << "Na zadanem interface nebylo mozne poslouchat." << std::endl;
-        return 0;
+        return 1;
     }
 
     isaTop = std::make_shared<IsaTop>(sortByBytes);
