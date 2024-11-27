@@ -1,18 +1,14 @@
 #include <iostream>
 #include "simlib.h"
 
+// TODO: fronty pred a za jednotliva uzka mista, jako jsou Pord Sais - Ismaille, Bitter Lake - Suez
 
-/**
- * sources of places where convoys can go only one way; in other places, convoys can go both ways simuntaneously
- * TODO: promyslet, jestli z toho neudelat fronty (Queue) a mozna i z tech konvoju
- */
-Facility Narrow_PortSaid_Ismaille;
-Facility Narrow_BitterLake_Suez;
+// TODO: generator pro generovani konvoju v urcite casove useky, defaultne ze severu kazdych 12 hodin jeden, z jihu pak jeden za 24 hodin,
+// pozdeji se budou menit hodnoty pro otestovani, kolik toto simulovany pruplav vydrzi, takze pres definy, nemelo by jich byt moc
 
-//Convoys - because of international trade, two convoyes goes south from Port Said and one north from Suez
-Facility FirstNorthConvoy;
-Facility SecondNorthConvoy;
-Facility SouthConvoy;
+// TODO: simulovani jednotlivych useku, nektera z nich jsou uzka mista
+
+// TODO: nejaka funkce na vypis statistik
 
 
 int main(){
