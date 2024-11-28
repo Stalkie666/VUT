@@ -1,0 +1,1 @@
+// TODO: sem umistit definy pro generovani konvoju, respektive jejich rychlost nebo casy, jeste uvidim
