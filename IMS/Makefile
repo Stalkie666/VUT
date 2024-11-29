@@ -3,7 +3,7 @@ CPPFLAGS= -lsimlib -Wall -pedantic
 
 default: main
 
-main: main.cpp
+main: main.cpp convoySettings.hpp
 	$(CPP) $(CPPFLAGS) main.cpp -o main
 run: main
 	./main
