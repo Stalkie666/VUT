@@ -1,0 +1,116 @@
+Process 	- baze pro modelovani procesu
+Event		- baze pro modely udalosti, 
+		  pozn. nebude treba nebo mozna jen na generaci konvoju
+Facility	- obsluzna linka - vylucny pristup
+Store		- obsluzna linka s kapacitou
+Queue		- fronta, pozn. sem asi budu cpat ty konvoje
+Statistiky	- sada trid pro sber a uchovani statistik
+
+// Poznamky k vytvoreni 
+int main(){
+	<prikazy> aka zakladni inicializace, napriklad SetOutput("soubor");
+	
+	Init(<pocatecni stav, koncovy stav>) - inicializace simulatoru v case m. casu
+	
+	<prikazy>	- init modelu
+			- tvoreni objektu
+			
+	Run();		- beh simulace
+	
+	<prikazy>	- zpracovani vysledku, napr. tisk statistik
+	
+	return 0;
+}
+
+modelovy cas reprezentovan promennou
+	double Time; - nelze do nej zapisovat, cas si ridi vyhradne jadro simulatoru
+	
+generovani pseudonahodnych cisel
+	double Random()				-- rovnomerne rozlozeni, R(0,1)
+	double Uniform(double L, double R)	-- rovnomerne rozlozeni, R(L,H)
+	double Exponential(double E)		-- exponencialni rozlozeni se stredem E
+	double Normal(double M, double S)	-- normalni rozlozeni se stredem M a 
+						   rozptylem S
+						   
+Event:
+	jednorazova udalost, nelze ji prerusit, stane se v urcitem modelovem case
+	class Udalost : public Event{
+		void Behavior(){
+			// .. prikazy udalosti
+			Activate(Time + e); // periodicky aktivovat
+		}
+	}
+	
+	// planovani udalosti
+	(new Udalost)->Activate();	// planuje na cas Time
+	(new Udalost)->Activate(t);	// cas t (pozor na t < Time )
+	
+	Generace transakci/procesu:
+	class Gener : public Event{
+		void Behavior(){
+			(new Proc)->Activate();
+			Activate(Time+Exponential(2));
+		}
+	};
+	int main(){
+		Init(t0, t1);
+		(new Gener)->Activate();
+	}
+
+Process:
+	Po aktivaci procesu se vola metoda Behavior(), Provadeni metody je preruseno
+	cekani:
+		ve fronte u zarizeni (v ramci Seize, Enter)
+		pri explicitnim Wait(dt); abstrakce nejake cinosti trvajici dt	
+	
+	class Transakce : public Process{
+		public:
+			Transakce( parametry ){
+				// nepovinny popis inicializace procesu
+			}
+			void Bahavioral(){
+				// popis chovani procesu
+				
+				// napr.:
+				...	// Nejaky kod
+				Wait(3); // Cekani 3 casove jednotky
+				...	// Pokracovani
+				
+				pozn.: Prikaz Passivate() - uspi proces na neurcito
+			}
+	}
+	
+	Vytvoreni instance tridy:
+	Transekce *t = new Transakce;
+	
+	Planovani (re)aktivace procesu
+	t->Activate(tm);	implicitne tm = Time, lze nastavit i jiny cas
+	
+	Zruseni procesu i jeho registrace ve vsech strukturach
+	t->Cancel(); // take lze pouzit delete t;
+	
+	Preruseni beziciho procesu
+	Passivate();
+	
+	Pro udalosti lze pouzit pouze Activate() a Cancel();
+	
+Timeout:
+	preruseni cekani ve fronte, nebude asi potreba,
+	chceme posilat konvoje co nejdrive to jde
+	
+Cekani procesu:
+	Explicitne vyvolame prikazem
+		Wait(expr);
+	Implicitne muze process cekat pred zabranim Facility nebo Store
+		Seize(F);	-- zabrani facillity
+		Wait(5);	-- F "pracuje" / se tam flaka zmrd linej 5 cas. jednotek
+		Release(F);	-- uvolni zarizeni
+		
+		Enter(S, 3)	-- zabrani store, zabere zde 3 mista
+		Wait(10);	
+		Leaves(S, 1)	-- uvolni jedno misto
+
+Priorita Procesu:
+	atribut Priority ovlivnuje jeho razeni do front
+	
+		
