@@ -5,53 +5,66 @@
  */
 
 #include <iostream>
+#include <ctime>
 #include "simlib.h"
 #include "convoySettings.hpp"
 
+/**
+ * Statistics global variables
+ */
 Histogram travel_time("Travel time",0,1,100);
+double VytvoreneKonvoje = 0;
+double OdbaveneKonvoje = 0;
 
-// TODO: globalni prommene pro zaznam statistik
-int CelkovyPocetSevernichKonvoju = 0;
-int CelkovyPocetJiznichKonvoju = 0;
-int OdbavenyPocetSevernichKonvoju = 0;
-int OdbavenyPocetJiznichKonvoju = 0;
-
-// TODO: facilities pro kontrolu/povoleni vstupu do jednotlivych casti kanalu
 /**
  * Allows enter parts of canal
  */
 Facility PortSaid_Ismaille_Facility;
 Facility BitterLake_Suez_Facility;
 
-Facility North_to_South_Facility;
-Facility South_to_North_Facility;
+Facility North_to_South_Ismaille_Facility;
+Facility North_to_South_BitterLake_Facility;
 
-double VytvoreneKonvoje = 0;
-double OdbaveneKonvoje = 0;
+Facility South_to_North_Ismaille_Facility;
+Facility South_to_North_BitterLake_Facility;
+
+
 
 class NorthToSouthRoute : public Process{
     public:
         void Behavior(){
+            Priority = 1;
             VytvoreneKonvoje++;
             /**
              * Enter Port Said - Ismaille part of canal
             */
             double start_time = Time;
-            Seize(North_to_South_Facility);
+            Seize(North_to_South_Ismaille_Facility);
             Seize(PortSaid_Ismaille_Facility);
             Wait( Uniform(HOUR * 4, HOUR * 5) );
+
+            Priority = 0;
+
             /**
              * Exit Port Said - Ismaille part of canal
-             * Enter route Ismaille - End of bitter lake
+             * Enter route Ismaille - Start of bitter lake
              */
             Release(PortSaid_Ismaille_Facility);
-            Wait( Uniform(HOUR * 3, HOUR * 5) );
+            Wait( Uniform(HOUR * 2, HOUR * 3) );
+
+            /**
+             * Start of Bitter lake - End of Bitter Lake
+            */
+            Seize(North_to_South_BitterLake_Facility);
+            Release(North_to_South_Ismaille_Facility);
+            Wait( Uniform(HOUR * 1, HOUR * 2) );
+
             /**
              * Enter Bitter Lake - Suez part of canal
              * Allow next convoy from north to enter canal
              */
             Seize(BitterLake_Suez_Facility);
-            Release(North_to_South_Facility);
+            Release(North_to_South_BitterLake_Facility);
             Wait( Uniform(HOUR * 3, HOUR * 4) );
             /**
              * Exit Suez canal
@@ -65,26 +78,40 @@ class NorthToSouthRoute : public Process{
 class SouthToNorthRoute : public Process{
     public:
         void Behavior(){
+            Priority = 1;
             VytvoreneKonvoje++;
             /**
              * Enter Suez - Bitter Lake part
              */
             double start_time = Time;
-            Seize(South_to_North_Facility);
+            Seize(South_to_North_BitterLake_Facility);
             Seize(BitterLake_Suez_Facility);
             Wait( Uniform(HOUR * 3, HOUR * 4) );
+
+            Priority = 0;
             /**
              * Exit Suez - Bitter Lake part
-             * Enter Bitter Lake - Ismaille part
+             * Enter Bitter Lake - End of Bitter Lake part
              */
             Release(BitterLake_Suez_Facility);
-            Wait( Uniform(HOUR * 3, HOUR * 5) );
+            Wait( Uniform(HOUR * 1, HOUR * 2) );
+
+
+
+            /**
+             * End of Bitter Lake - Ismaille
+             */
+            Seize(South_to_North_Ismaille_Facility);
+            Release(South_to_North_BitterLake_Facility);
+            Wait( Uniform(HOUR * 2, HOUR * 3) );
+
+
             /**
              * Enter Ismaille - Port Said part
              * Allow next convoy from south to enter canal
              */
             Seize(PortSaid_Ismaille_Facility);
-            Release(South_to_North_Facility);
+            Release(South_to_North_Ismaille_Facility);
             Wait( Uniform(HOUR * 4,HOUR * 5) );
             /**
              * Exit canal at Port Said
@@ -95,12 +122,27 @@ class SouthToNorthRoute : public Process{
         }
 };
 
+/**
+ * This process simulate Ever Given ship, which blocked Suez for 6 days
+ */
+class EverGivenAccident : public Process{
+    public:
+        EverGivenAccident(){
+            Priority = 100;
+        }
+        void Behavior(){
+            Seize(BitterLake_Suez_Facility);
+            Wait(6 * DAY);
+            Release(BitterLake_Suez_Facility);
+        }
+};
+
 //TODO: generator konvoju ze severu
 class GenerateConvoyFromNorth : public Event{
   public:
     void Behavior(){
         (new NorthToSouthRoute)->Activate();
-        Activate(Time + Exponential(HOUR * 12));
+        Activate(Time + Exponential(NORTH_CONVOYS_PER_DAY));
     }  
 };
 //TODO: generator konvoju z jihu
@@ -108,23 +150,28 @@ class GenerateConvoyFromSouth : public Event{
   public:
     void Behavior(){
         (new SouthToNorthRoute)->Activate();
-        Activate(Time + Exponential(HOUR * 24));
+        Activate(Time + Exponential(SOUTH_CONVOYS_PER_DAY));
     }  
 };
 
 
-// TODO: nejaka funkce na vypis statistik
+/**
+ * Print statistic gathered during simulations
+ */
+void PrintStatistics(){
+    travel_time.Output();
+    std::cout << "Vytvorene konvoje: " << VytvoreneKonvoje << std::endl;
+    std::cout << "Odbavene  konvoje: " << OdbaveneKonvoje << std::endl;
+}
 
 
 int main(){
-
+    RandomSeed(time(NULL));
     Init(0,YEAR);
     (new GenerateConvoyFromNorth)->Activate();
     (new GenerateConvoyFromSouth)->Activate();
     Run();
-    travel_time.Output();
-    std::cout << "Vytvorene konvoje: " << VytvoreneKonvoje << std::endl;
-    std::cout << "Odbavene  konvoje: " << OdbaveneKonvoje << std::endl;
-
+    
+    PrintStatistics();
     return 0;
 }
