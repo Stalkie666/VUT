@@ -15,6 +15,7 @@
 Histogram travel_time("Travel time",0,1,100);
 double VytvoreneKonvoje = 0;
 double OdbaveneKonvoje = 0;
+double NehodyNaKanalu = 0;
 
 /**
  * Allows enter parts of canal
@@ -29,7 +30,9 @@ Facility South_to_North_Ismaille_Facility;
 Facility South_to_North_BitterLake_Facility;
 
 
-
+/**
+ * Those processes simulates convoy going throw canal
+ */
 class NorthToSouthRoute : public Process{
     public:
         void Behavior(){
@@ -131,13 +134,16 @@ class EverGivenAccident : public Process{
             Priority = 100;
         }
         void Behavior(){
+            NehodyNaKanalu++;
             Seize(BitterLake_Suez_Facility);
             Wait(6 * DAY);
             Release(BitterLake_Suez_Facility);
         }
 };
 
-//TODO: generator konvoju ze severu
+/**
+ * Convoys generators, accidents generator
+ */
 class GenerateConvoyFromNorth : public Event{
   public:
     void Behavior(){
@@ -145,13 +151,36 @@ class GenerateConvoyFromNorth : public Event{
         Activate(Time + Exponential(NORTH_CONVOYS_PER_DAY));
     }  
 };
-//TODO: generator konvoju z jihu
+
 class GenerateConvoyFromSouth : public Event{
   public:
     void Behavior(){
         (new SouthToNorthRoute)->Activate();
         Activate(Time + Exponential(SOUTH_CONVOYS_PER_DAY));
     }  
+};
+
+class GenerateSpecialConvoysFromNorth : public Event{
+    public:
+        void Behavior(){
+            (new NorthToSouthRoute)->Activate();
+            Activate(Time + Exponential(SPECIAL_CONVOYS_FROM_NORTH_PER_MONTH));
+        }
+};
+class GenerateSpecialConvoysFromSouth : public Event{
+    public:
+        void Behavior(){
+            (new SouthToNorthRoute)->Activate();
+            Activate(Time + Exponential(SPECIAL_CONVOYS_FROM_SOUTH_PER_MONTH));
+        }
+};
+
+class GenerateAccidentInCanal : public Event{
+    public:
+        void Behavior(){
+            (new EverGivenAccident)->Activate();
+            Activate(Time + Exponential(EVER_GIVEN_ACCIDENTS_PER_MONTH));
+        }
 };
 
 
@@ -162,6 +191,9 @@ void PrintStatistics(){
     travel_time.Output();
     std::cout << "Vytvorene konvoje: " << VytvoreneKonvoje << std::endl;
     std::cout << "Odbavene  konvoje: " << OdbaveneKonvoje << std::endl;
+#if ALLOW_ACCIDENTS
+    std::cout << "Nehod na kanalu:   " << NehodyNaKanalu << std::endl;
+#endif
 }
 
 
@@ -170,6 +202,14 @@ int main(){
     Init(0,YEAR);
     (new GenerateConvoyFromNorth)->Activate();
     (new GenerateConvoyFromSouth)->Activate();
+#if ALLOW_ACCIDENTS
+    (new GenerateAccidentInCanal)->Activate();
+#endif
+#if ALLOW_SPECIAL_CONVOYS
+    (new GenerateSpecialConvoysFromNorth)->Activate();
+    (new GenerateSpecialConvoysFromSouth)->Activate();
+#endif
+
     Run();
     
     PrintStatistics();
