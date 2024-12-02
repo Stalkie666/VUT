@@ -12,7 +12,6 @@
 /**
  * Statistics global variables
  */
-Histogram travel_time("Travel time",0,1,100);
 double VytvoreneKonvoje = 0;
 double OdbaveneKonvoje = 0;
 double NehodyNaKanalu = 0;
@@ -41,7 +40,6 @@ class NorthToSouthRoute : public Process{
             /**
              * Enter Port Said - Ismaille part of canal
             */
-            double start_time = Time;
             Seize(North_to_South_Ismaille_Facility);
             Seize(PortSaid_Ismaille_Facility);
             Wait( Uniform(HOUR * 4, HOUR * 5) );
@@ -73,7 +71,6 @@ class NorthToSouthRoute : public Process{
              * Exit Suez canal
              */
             Release(BitterLake_Suez_Facility);
-            travel_time((Time - start_time)/ 60);
             OdbaveneKonvoje++;
         }
 };
@@ -86,7 +83,6 @@ class SouthToNorthRoute : public Process{
             /**
              * Enter Suez - Bitter Lake part
              */
-            double start_time = Time;
             Seize(South_to_North_BitterLake_Facility);
             Seize(BitterLake_Suez_Facility);
             Wait( Uniform(HOUR * 3, HOUR * 4) );
@@ -120,7 +116,6 @@ class SouthToNorthRoute : public Process{
              * Exit canal at Port Said
              */
             Release(PortSaid_Ismaille_Facility);
-            travel_time((Time - start_time)/ 60);
             OdbaveneKonvoje++;
         }
 };
@@ -136,7 +131,7 @@ class EverGivenAccident : public Process{
         void Behavior(){
             NehodyNaKanalu++;
             Seize(BitterLake_Suez_Facility);
-            Wait(6 * DAY);
+            Wait(EVER_GIVEN_ACCIDENTS_RECOVER_TIME);
             Release(BitterLake_Suez_Facility);
         }
 };
@@ -148,7 +143,7 @@ class GenerateConvoyFromNorth : public Event{
   public:
     void Behavior(){
         (new NorthToSouthRoute)->Activate();
-        Activate(Time + Exponential(NORTH_CONVOYS_PER_DAY));
+        Activate(Time + (NORTH_CONVOYS_PER_DAY));
     }  
 };
 
@@ -156,7 +151,7 @@ class GenerateConvoyFromSouth : public Event{
   public:
     void Behavior(){
         (new SouthToNorthRoute)->Activate();
-        Activate(Time + Exponential(SOUTH_CONVOYS_PER_DAY));
+        Activate(Time + (SOUTH_CONVOYS_PER_DAY));
     }  
 };
 
@@ -188,9 +183,11 @@ class GenerateAccidentInCanal : public Event{
  * Print statistic gathered during simulations
  */
 void PrintStatistics(){
-    travel_time.Output();
     std::cout << "Vytvorene konvoje: " << VytvoreneKonvoje << std::endl;
     std::cout << "Odbavene  konvoje: " << OdbaveneKonvoje << std::endl;
+    std::cout << (((VytvoreneKonvoje - OdbaveneKonvoje) >= 10) ? 
+                        "Kanal je na sve kapacite" : 
+                        "Kanal je stale funkcni") <<  std::endl;
 #if ALLOW_ACCIDENTS
     std::cout << "Nehod na kanalu:   " << NehodyNaKanalu << std::endl;
 #endif
@@ -199,7 +196,7 @@ void PrintStatistics(){
 
 int main(){
     RandomSeed(time(NULL));
-    Init(0,YEAR);
+    Init(0,SIMULATION_RUN_TIME);
     (new GenerateConvoyFromNorth)->Activate();
     (new GenerateConvoyFromSouth)->Activate();
 #if ALLOW_ACCIDENTS
