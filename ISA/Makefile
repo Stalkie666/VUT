@@ -6,7 +6,7 @@ CPPFLAGS=-Wall -pedantic -lncurses -lpcap
 default: isa-top
 	
 isa-top: isa_top.o packet_handler.o main.o record.o
-	$(CPP) $(CPPFLAGS) record.o isa_top.o packet_handler.o main.o -o isa-top
+	$(CPP) $(CPPFLAGS) record.o isa_top.o packet_handler.o main.o -lncurses -lpcap -o isa-top
 
 main.o: main.cpp isa_top.hpp packet_handler.hpp
 	$(CPP) $(CPPFLAGS) main.cpp -c
