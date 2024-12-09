@@ -27,15 +27,10 @@ int setupCamera(){
     cam_config.xclk_freq_hz = 20000000;
     cam_config.pixel_format = PIXFORMAT_JPEG;
 
-    if(psramFound()){
-      cam_config.frame_size = FRAMESIZE_UXGA; // FRAMESIZE_ + QVGA|CIF|VGA|SVGA|XGA|SXGA|UXGA
-      cam_config.jpeg_quality = 10;
-      cam_config.fb_count = 2;
-    } else {
-      cam_config.frame_size = FRAMESIZE_SVGA;
-      cam_config.jpeg_quality = 12;
-      cam_config.fb_count = 1;
-    }
+
+    cam_config.frame_size = FRAMESIZE_SVGA;
+    cam_config.jpeg_quality = 12;
+    cam_config.fb_count = 1;
 
     esp_err_t err = esp_camera_init(&cam_config);
     if (err != ESP_OK) {

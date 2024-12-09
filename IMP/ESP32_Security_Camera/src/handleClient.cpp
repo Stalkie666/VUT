@@ -2,9 +2,6 @@
 
 String header;
 
-// TODO: Smazat counter, byl jen na test
-int counter = 0;
-
 void handleClient(WiFiClient client) {
   Serial.println("New Client");
   String currentLine = "";
@@ -17,14 +14,38 @@ void handleClient(WiFiClient client) {
 
       if (c == '\n') {
         if (currentLine.length() == 0) {
-          if (header.indexOf("GET /plus") >= 0) {
-            counter++;
-          } else if (header.indexOf("GET /counter") >= 0) {
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/plain");
-            client.println("Connection: close");
-            client.println();
-            client.println(counter); // Vrátí hodnotu počítadla
+          // Detekce požadavků na konkrétní obrázek
+          if (header.indexOf("GET /picture") >= 0) {
+            // Extrakce názvu souboru
+            int startIdx = header.indexOf("GET /") + 5;
+            int endIdx = header.indexOf(" ", startIdx);
+            String filename = header.substring(startIdx, endIdx);
+
+            // Sestavení absolutní cesty
+            if (!filename.startsWith("/")) {
+              filename = "/" + filename; // Přidáme '/' na začátek
+            }
+
+            // Načtení souboru z SD karty
+            File file = SD_MMC.open(filename.c_str(), FILE_READ);
+            if (file) {
+              client.println("HTTP/1.1 200 OK");
+              client.println("Content-Type: image/jpeg");
+              client.println("Connection: close");
+              client.println();
+
+              // Odeslání obsahu souboru
+              while (file.available()) {
+                client.write(file.read());
+              }
+              file.close();
+            } else {
+              client.println("HTTP/1.1 404 Not Found");
+              client.println("Content-Type: text/plain");
+              client.println("Connection: close");
+              client.println();
+              client.println("File not found");
+            }
             break;
           }
 
@@ -42,18 +63,7 @@ void handleClient(WiFiClient client) {
           client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
           client.println(".button2 {background-color: #555555;}</style></head>");
           client.println("<body><h1>ESP32 Web Server</h1>");
-          client.println("<p><button class=\"button\" onclick=\"sendPlusRequest()\">+</button></p>");
-          client.println("<p>Cislo: <span id=\"counter\">0</span></p>");
-          client.println("<script>");
-          client.println("function sendPlusRequest() {");
-          client.println("fetch('/plus').then(response => { if (response.ok) updateCounter(); });");
-          client.println("}");
-          client.println("function updateCounter() {");
-          client.println("fetch('/counter').then(response => response.text()).then(data => {");
-          client.println("document.getElementById('counter').textContent = data; });");
-          client.println("}");
-          client.println("document.addEventListener('DOMContentLoaded', updateCounter);");
-          client.println("</script>");
+          client.println("<p><img src=\"/picture0.jpg\" alt=\"Picture\" style=\"max-width:100%;height:auto;\"></p>");
           client.println("</body></html>");
           client.println();
           break;
