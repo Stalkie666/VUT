@@ -42,7 +42,7 @@ void handleClient(WiFiClient client) {
           client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
           client.println(".button2 {background-color: #555555;}</style></head>");
           client.println("<body><h1>ESP32 Web Server</h1>");
-          client.println("<p><button disabled=\"true\" class=\"button\" onclick=\"sendPlusRequest()\">+</button></p>");
+          client.println("<p><button class=\"button\" onclick=\"sendPlusRequest()\">+</button></p>");
           client.println("<p>Cislo: <span id=\"counter\">0</span></p>");
           client.println("<script>");
           client.println("function sendPlusRequest() {");

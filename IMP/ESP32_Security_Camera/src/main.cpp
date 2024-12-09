@@ -31,6 +31,12 @@ void setup() {
   Serial.print("AP IP address: ");
   Serial.println(IP);
   server.begin();
+
+  // if camera setup failed, end setup
+  if( setupCamera() ) return;
+  if( setupSDcard() ) return;
+
+  takeAPhoto();
 }
 
 
@@ -40,4 +46,5 @@ void loop() {
   if (client) {
     handleClient(client); // Obslouží každého klienta v samostatné funkci
   }
+  // TODO: zkontrolovat jestli nahodou neni signal na porizeni snimku, zde podminka jestli je zaptnuto zaznamenavani 
 }
