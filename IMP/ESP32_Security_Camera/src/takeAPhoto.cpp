@@ -2,7 +2,9 @@
 
 int takeAPhoto(){
     camera_fb_t * fb = NULL;
-    // Take Picture with Camera
+    // Take Picture with Camera, 2x because someone forget +-1 problem: https://www.esp32.com/viewtopic.php?t=24566
+    fb = esp_camera_fb_get();
+    esp_camera_fb_return(fb); 
     fb = esp_camera_fb_get();  
     if(!fb) {
       Serial.println("Camera capture failed");
