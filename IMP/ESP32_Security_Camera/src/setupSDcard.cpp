@@ -1,6 +1,7 @@
 #include "ESP32_security_system.hpp"
 
 int pictureNumber = 0;
+int currentPictureNumber = 0;
 
 /**
  * @return 1 if failed, 0 if success
@@ -17,6 +18,7 @@ int setupSDcard(){
     }
 
     pictureNumber = loadPictureNumberFromSD();
+    int currentPictureNumber = pictureNumber;
 
     return 0;
 }

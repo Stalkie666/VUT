@@ -36,7 +36,6 @@ void setup() {
   if( setupCamera() ) return;
   if( setupSDcard() ) return;
 
-  takeAPhoto();
 }
 
 
