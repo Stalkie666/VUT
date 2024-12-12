@@ -27,6 +27,8 @@ int setupCamera(){
     cam_config.xclk_freq_hz = 20000000;
     cam_config.pixel_format = PIXFORMAT_JPEG;
 
+    cam_config.grab_mode = CAMERA_GRAB_LATEST;
+
 
     cam_config.frame_size = FRAMESIZE_SVGA;
     cam_config.jpeg_quality = 12;

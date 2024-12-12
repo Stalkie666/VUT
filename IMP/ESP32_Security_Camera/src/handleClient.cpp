@@ -2,6 +2,67 @@
 
 String header;
 
+// Rychlejší funkce pro odeslání HTML stránky
+void SendHTMLPage(WiFiClient client) {
+  client.println(F("HTTP/1.1 200 OK"));
+  client.println(F("Content-type:text/html"));
+  client.println(F("Connection: keep-alive")); // Zachování spojení pro rychlejší následné požadavky
+  client.println();
+
+  client.println(F("<!DOCTYPE html><html>"));
+  client.println(F("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"));
+  client.println(F("<link rel=\"icon\" href=\"data:,\">"));
+  client.println(F("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center; }"));
+  client.println(F(".button { background-color: #4CAF50; border: none; color: white; padding: 16px 40px;"));
+  client.println(F("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer; }"));
+  client.println(F(".button2 { background-color: #555555; }"));
+  client.println(F("</style></head><body><h1>ESP32 Web Server</h1>"));
+
+  String picNum = String(currentPictureNumber);
+  client.print(F("<p><img id=\"picture\" src=\"/picture"));
+  client.print(picNum);
+  client.println(F(".jpg\" alt=\"Picture\" style=\"max-width:100%;height:auto;\"></p>"));
+
+
+  client.println(F("<div style=\"display: flex; align-items: center; justify-content: center;\">"));
+  client.println(F("<button class=\"button\" onclick=\"sendAction('prev')\">Prev</button>"));
+  client.println(F("<button class=\"button\" onclick=\"sendAction('takepicture')\">Take photo</button>"));
+  client.println(F("<button class=\"button\" onclick=\"sendAction('next')\">Next</button>"));
+  client.println(F("</div>"));
+
+  client.println(F("<script>"));
+  client.println(F("function sendAction(action) { fetch('/' + action).then(res => res.ok ? res.text().then(updatePicture) : console.error('Action failed:', action)); }"));
+  client.println(F("function updatePicture(picIndex) { document.getElementById('picture').src = '/picture' + picIndex + '.jpg'; }"));
+  client.println(F("</script></body></html>"));
+}
+
+// Optimalizovaný přenos obrázku
+void sendPicture(WiFiClient client, const String& filename) {
+  Serial.println("Picture name for send:" + filename);
+  File file = SD_MMC.open(filename, FILE_READ);
+  if (file) {
+    client.println(F("HTTP/1.1 200 OK"));
+    client.println(F("Content-Type: image/jpeg"));
+    client.println(F("Connection: close"));
+    client.println();
+
+    // Rychlejší přenos ve větších blocích
+    uint8_t buffer[1024];
+    size_t bytesRead;
+    while ((bytesRead = file.read(buffer, sizeof(buffer))) > 0) {
+      client.write(buffer, bytesRead);
+    }
+    file.close();
+  } else {
+    client.println(F("HTTP/1.1 404 Not Found"));
+    client.println(F("Content-Type: text/plain"));
+    client.println(F("Connection: close"));
+    client.println();
+    client.println(F("File not found"));
+  }
+}
+
+// Funkce pro zpracování požadavků klienta
 void handleClient(WiFiClient client) {
   Serial.println("New Client");
   String currentLine = "";
@@ -9,63 +70,47 @@ void handleClient(WiFiClient client) {
   while (client.connected()) {
     if (client.available()) {
       char c = client.read();
-      Serial.write(c);
       header += c;
 
       if (c == '\n') {
         if (currentLine.length() == 0) {
-          // Detekce požadavků na konkrétní obrázek
+          // Rozpoznání různých typů požadavků
           if (header.indexOf("GET /picture") >= 0) {
-            // Extrakce názvu souboru
             int startIdx = header.indexOf("GET /") + 5;
             int endIdx = header.indexOf(" ", startIdx);
             String filename = header.substring(startIdx, endIdx);
+            if (!filename.startsWith("/")) filename = "/" + filename;
 
-            // Sestavení absolutní cesty
-            if (!filename.startsWith("/")) {
-              filename = "/" + filename; // Přidáme '/' na začátek
-            }
-
-            // Načtení souboru z SD karty
-            File file = SD_MMC.open(filename.c_str(), FILE_READ);
-            if (file) {
-              client.println("HTTP/1.1 200 OK");
-              client.println("Content-Type: image/jpeg");
-              client.println("Connection: close");
-              client.println();
-
-              // Odeslání obsahu souboru
-              while (file.available()) {
-                client.write(file.read());
-              }
-              file.close();
-            } else {
-              client.println("HTTP/1.1 404 Not Found");
-              client.println("Content-Type: text/plain");
-              client.println("Connection: close");
-              client.println();
-              client.println("File not found");
-            }
+            sendPicture(client, filename); // Rychlý přenos obrázku
+            break;
+          } else if (header.indexOf("GET /prev") >= 0) {
+            currentPictureNumber = (currentPictureNumber == 0) ? pictureNumber - 1 : currentPictureNumber - 1;
+            client.println(F("HTTP/1.1 200 OK"));
+            client.println(F("Content-Type: text/plain"));
+            client.println(F("Connection: close"));
+            client.println();
+            client.println(currentPictureNumber);
+            break;
+          } else if (header.indexOf("GET /next") >= 0) {
+            currentPictureNumber = (currentPictureNumber == pictureNumber - 1) ? 0 : currentPictureNumber + 1;
+            client.println(F("HTTP/1.1 200 OK"));
+            client.println(F("Content-Type: text/plain"));
+            client.println(F("Connection: close"));
+            client.println();
+            client.println(currentPictureNumber);
+            break;
+          } else if (header.indexOf("GET /takepicture") >= 0) {
+            takeAPhoto();
+            client.println(F("HTTP/1.1 200 OK"));
+            client.println(F("Content-Type: text/plain"));
+            client.println(F("Connection: close"));
+            client.println();
+            currentPictureNumber = pictureNumber - 1;
+            client.println(currentPictureNumber);
             break;
           }
 
-          // Poskytnutí HTML stránky
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-type:text/html");
-          client.println("Connection: close");
-          client.println();
-
-          client.println("<!DOCTYPE html><html>");
-          client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-          client.println("<link rel=\"icon\" href=\"data:,\">");
-          client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
-          client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 16px 40px;");
-          client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
-          client.println(".button2 {background-color: #555555;}</style></head>");
-          client.println("<body><h1>ESP32 Web Server</h1>");
-          client.println("<p><img src=\"/picture0.jpg\" alt=\"Picture\" style=\"max-width:100%;height:auto;\"></p>");
-          client.println("</body></html>");
-          client.println();
+          SendHTMLPage(client); // Vrácení HTML stránky
           break;
         } else {
           currentLine = "";

@@ -34,8 +34,10 @@
 #define PCLK_GPIO_NUM     22
 
 // Global variables
-extern String header;
-extern int pictureNumber;
+extern String header;       // header for webserver
+extern int pictureNumber;   // number of pictures taken
+extern int currentPictureNumber;   // current shoving picture
+
 
 // setup functions
 int setupCamera();
