@@ -101,11 +101,11 @@ void handleClient(WiFiClient client) {
             break;
           } else if (header.indexOf("GET /takepicture") >= 0) {
             takeAPhoto();
+            currentPictureNumber = pictureNumber - 1;
             client.println(F("HTTP/1.1 200 OK"));
             client.println(F("Content-Type: text/plain"));
             client.println(F("Connection: close"));
             client.println();
-            currentPictureNumber = pictureNumber - 1;
             client.println(currentPictureNumber);
             break;
           }

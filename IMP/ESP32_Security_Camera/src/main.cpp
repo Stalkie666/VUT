@@ -4,6 +4,8 @@
 
 #include "ESP32_security_system.hpp"
 
+#define interuptPinForMe GPIO_NUM_13
+
 const char* ssid = "Stalkie's AP";
 const char* password = "tvojemama";
 
@@ -12,9 +14,6 @@ IPAddress gateway(192, 168, 4, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 WiFiServer server(80);
-
-
-
 
 void setup() {
   Serial.begin(115200);
@@ -35,15 +34,14 @@ void setup() {
   // if camera setup failed, end setup
   if( setupCamera() ) return;
   if( setupSDcard() ) return;
-
 }
 
 
 
 void loop() {
+
   WiFiClient client = server.available();
   if (client) {
-    handleClient(client); // Obslouží každého klienta v samostatné funkci
+    handleClient(client);
   }
-  // TODO: zkontrolovat jestli nahodou neni signal na porizeni snimku, zde podminka jestli je zaptnuto zaznamenavani 
 }
