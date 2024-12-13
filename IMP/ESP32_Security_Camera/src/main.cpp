@@ -6,9 +6,11 @@
 
 #define interuptPinForMe GPIO_NUM_13
 
+// config data for WiFi
 const char* ssid = "xhamad03's AP";
 const char* password = "123456";
 
+// config data for server
 IPAddress local_IP(192, 168, 4, 1);
 IPAddress gateway(192, 168, 4, 1);
 IPAddress subnet(255, 255, 255, 0);
@@ -33,13 +35,14 @@ void setup() {
 
   // if camera setup failed, end setup
   if( setupCamera() ) return;
+  // if SD card setup failed, end setup
   if( setupSDcard() ) return;
 }
 
 
 
 void loop() {
-
+  // just waiting for client (ESP32 with PIR senzor or user's devices)
   WiFiClient client = server.available();
   if (client) {
     handleClient(client);

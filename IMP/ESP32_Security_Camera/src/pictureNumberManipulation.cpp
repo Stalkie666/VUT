@@ -1,5 +1,6 @@
 #include "ESP32_security_system.hpp"
 
+// load picture from SD card, if exists 
 int loadPictureNumberFromSD(){
     File file = SD_MMC.open("/pictureNumber.txt", FILE_READ);
     if (!file) {
@@ -13,7 +14,7 @@ int loadPictureNumberFromSD(){
     return pictureNumber;
 }
 
-
+// save new picture number into SD card
 void savePictureNumberToSD(int pictureNumber){
     File file = SD_MMC.open("/pictureNumber.txt", FILE_WRITE);
     if (!file) {
