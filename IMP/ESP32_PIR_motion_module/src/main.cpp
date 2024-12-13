@@ -2,11 +2,18 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
+#define PIR_CIDLO GPIO_NUM_13
+
 const char* ssid = "Stalkie's AP";
 const char* password = "tvojemama";
 
 const char* serverNamePhoto = "http://192.168.4.1/takepicture";
 
+volatile bool motionDetected = false;
+
+void motionDetection(){
+  motionDetected = true;
+}
 
 
 void setup() {
@@ -21,6 +28,9 @@ void setup() {
   Serial.println("");
   Serial.print("Connected to WiFi network with IP Address: ");
   Serial.println(WiFi.localIP());
+
+  pinMode(PIR_CIDLO,INPUT);
+  attachInterrupt(PIR_CIDLO,motionDetection,RISING);
 }
 
 
@@ -55,10 +65,10 @@ String httpGETRequest(const char* serverName) {
 
 
 void loop() {
-  if( WiFi.status() == WL_CONNECTED ){
+  if( WiFi.status() == WL_CONNECTED && motionDetected){
     String retVal = httpGETRequest(serverNamePhoto);
     Serial.println("Fotka no." + retVal + " porizena");
+    motionDetected = false;
   }
-  delay(1500);
 }
 
