@@ -6,8 +6,8 @@
 
 #define interuptPinForMe GPIO_NUM_13
 
-const char* ssid = "Stalkie's AP";
-const char* password = "tvojemama";
+const char* ssid = "xhamad03's AP";
+const char* password = "123456";
 
 IPAddress local_IP(192, 168, 4, 1);
 IPAddress gateway(192, 168, 4, 1);

@@ -4,8 +4,8 @@
 
 #define PIR_CIDLO GPIO_NUM_13
 
-const char* ssid = "Stalkie's AP";
-const char* password = "tvojemama";
+const char* ssid = "xhamad03's AP";
+const char* password = "123456";
 
 const char* serverNamePhoto = "http://192.168.4.1/takepicture";
 
